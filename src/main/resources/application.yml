@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: gpi-prev-batch-faturamento
+
+  datasource:
+    jdbc-url: ${DB_URL:jdbc:sqlserver://localhost:1433;databaseName=gpiprev;encrypt=true;trustServerCertificate=true}
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:1q2w3e4r@#$}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    platform: sqlserver
+
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  batch:
+    initialize-schema: always
+    schema: classpath:org/springframework/batch/core/schema-sqlserver.sql
+
+#logging:
+#  level:
+#    root: TRACE
+#    org.springframework.jdbc: TRACE
+#    com.zaxxer.hikari: TRACE

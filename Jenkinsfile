@@ -14,6 +14,10 @@ pipeline {
         REGISTRY = "117890058519.dkr.ecr.us-east-1.amazonaws.com"
     }
 
+    tools {
+        jdk "JDK-${params.JAVA_VERSION}"
+    }
+
     stages {
         stage('Set Remote Variables') {
             steps {
@@ -42,13 +46,8 @@ pipeline {
         }
 
         stage('Build') {
-            agent {
-                docker {
-                    image "eclipse-temurin:${params.JAVA_VERSION}-jdk"
-                }
-            }
             steps {
-                sh './mvnw -Dmaven.repo.local=/home/gpi/.m2/repository clean install -DskipTests'
+                sh './mvnw clean install -DskipTests'
             }
         }
 

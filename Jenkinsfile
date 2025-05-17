@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         PROJECT_NAME = 'gpi-prev-batch-faturamento'
-        GIT_REPOSITORY = "git@github.com:gpiprev-web/gpi-prev-batch-faturamento.git"
+        GIT_REPOSITORY = "git@github.com:og-gpi-prev/gpi-prev-batch-faturamento.git"
         AWS_REGION = 'us-east-1'
         REGISTRY = "117890058519.dkr.ecr.us-east-1.amazonaws.com"
     }

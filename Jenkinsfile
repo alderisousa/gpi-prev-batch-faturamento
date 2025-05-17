@@ -12,6 +12,9 @@ pipeline {
         GIT_REPOSITORY = "git@github.com:og-gpi-prev/gpi-prev-batch-faturamento.git"
         AWS_REGION = 'us-east-1'
         REGISTRY = "117890058519.dkr.ecr.us-east-1.amazonaws.com"
+
+        JAVA_17_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"
+        JAVA_21_HOME = "/usr/lib/jvm/java-21-openjdk-amd64"
     }
 
     stages {
@@ -43,20 +46,16 @@ pipeline {
 
         stage('Build') {
             agent any
-            environment {
-                JAVA_21_HOME = "/usr/lib/jvm/java-21-openjdk-amd64"
-            }
             steps {
                 script {
-                    def selectedJdk = env.JAVA_21_HOME
+                    def selectedJdk = params.JAVA_VERSION == '17' ? env.JAVA_17_HOME : env.JAVA_21_HOME
                     env.JAVA_HOME = selectedJdk
                     env.PATH = "${selectedJdk}/bin:${env.PATH}"
-                }
 
-                sh '''
-                    ./mvnw clean install -DskipTests
-                    ls -la target
-                '''
+                    echo "Usando Java versão: ${params.JAVA_VERSION}"
+                    sh "java -version"
+                    sh './mvnw clean install -DskipTests'
+                }
             }
         }
 

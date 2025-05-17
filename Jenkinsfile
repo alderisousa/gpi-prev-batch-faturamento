@@ -44,8 +44,8 @@ pipeline {
         stage('Build') {
             agent {
                 docker {
-                    image "eclipse-temurin:${params.JAVA_VERSION}-jdk"
-                    args "-v /home/gpi/.m2:/root/.m2"
+                    image "maven:3.9-eclipse-temurin-${params.JAVA_VERSION}"
+                    args "-v maven-repo:/root/.m2"
                 }
             }
             steps {

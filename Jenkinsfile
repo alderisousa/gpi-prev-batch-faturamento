@@ -94,10 +94,14 @@ pipeline {
 def dockerBuild() {
     env.IMAGE = "${REGISTRY}/${env.APP_NAME_WITH_VERSION}"
 
-    sh "docker build -t ${env.APP_NAME_WITH_VERSION} ."
+    def jarFile = sh(script: "ls -1 target/*.jar | head -n 1", returnStdout: true).trim()
+    echo "Usando arquivo JAR: ${jarFile}"
+
+    sh "docker build --build-arg JAR_FILE=${jarFile} -t ${env.APP_NAME_WITH_VERSION} ."
     sh "docker tag ${env.APP_NAME_WITH_VERSION} ${env.IMAGE}"
     sh "docker push ${env.IMAGE}"
 }
+
 
 def deployApplication() {
     sh """

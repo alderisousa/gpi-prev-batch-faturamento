@@ -48,10 +48,11 @@ pipeline {
                 }
             }
             environment {
-                MAVEN_OPTS = "-Dmaven.repo.local=.m2"
+                HOME = "${env.WORKSPACE}"
+                MAVEN_OPTS = "-Dmaven.repo.local=${env.WORKSPACE}/.m2"
             }
             steps {
-                sh './mvnw clean install -DskipTests'
+                sh 'echo "HOME=$HOME" && ./mvnw clean install -DskipTests'
             }
         }
 

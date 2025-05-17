@@ -42,17 +42,21 @@ pipeline {
         }
 
         stage('Build') {
-            agent {
-                docker {
-                    image "eclipse-temurin:${params.JAVA_VERSION}-jdk"
-                }
-            }
+            agent any
             environment {
-                HOME = "${env.WORKSPACE}"
-                MAVEN_OPTS = "-Dmaven.repo.local=${env.WORKSPACE}/.m2"
+                JAVA_17_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"
+                JAVA_21_HOME = "/usr/lib/jvm/java-21-openjdk-amd64"
             }
             steps {
-                sh 'echo "HOME=$HOME" && ./mvnw clean install -DskipTests'
+                script {
+                    def selectedJdk = params.JAVA_VERSION == '17' ? env.JAVA_17_HOME : env.JAVA_21_HOME
+                    env.JAVA_HOME = selectedJdk
+                    env.PATH = "${selectedJdk}/bin:${env.PATH}"
+                }
+
+                sh '''
+                    ./mvnw clean install -DskipTests
+                '''
             }
         }
 

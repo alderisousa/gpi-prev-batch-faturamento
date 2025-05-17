@@ -14,10 +14,6 @@ pipeline {
         REGISTRY = "117890058519.dkr.ecr.us-east-1.amazonaws.com"
     }
 
-    tools {
-        jdk "JDK-${params.JAVA_VERSION}"
-    }
-
     stages {
         stage('Set Remote Variables') {
             steps {

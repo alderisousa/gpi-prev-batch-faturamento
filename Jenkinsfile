@@ -42,7 +42,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh './gradlew clean build -x test'
+                sh './mvnw clean install -DskipTests'
             }
         }
 

@@ -4,7 +4,7 @@ pipeline {
     parameters {
         string(name: 'BRANCH', defaultValue: 'main', description: 'Informe a branch para checkout.')
         choice(name: 'ENVIRONMENT', choices: ['QA', 'PROD'], description: 'Selecione o ambiente para deploy.')
-        choice(name: 'JAVA_VERSION', choices: ['17', '21'], description: 'Selecione a versão do Java para build e deploy.')
+        choice(name: 'JAVA_VERSION', choices: ['21'], description: 'Selecione a versão do Java para build e deploy.')
     }
 
     environment {

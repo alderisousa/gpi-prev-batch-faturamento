@@ -1,7 +1,5 @@
 FROM eclipse-temurin:21-jdk-alpine
 
-WORKDIR /app
-
 COPY target/*.jar app.jar
 
 ENV JAVA_OPTS="-Xms512m -Xmx1g"

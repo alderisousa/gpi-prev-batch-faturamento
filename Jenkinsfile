@@ -44,18 +44,18 @@ pipeline {
         stage('Build') {
             agent any
             environment {
-                JAVA_17_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"
                 JAVA_21_HOME = "/usr/lib/jvm/java-21-openjdk-amd64"
             }
             steps {
                 script {
-                    def selectedJdk = params.JAVA_VERSION == '17' ? env.JAVA_17_HOME : env.JAVA_21_HOME
+                    def selectedJdk = env.JAVA_21_HOME
                     env.JAVA_HOME = selectedJdk
                     env.PATH = "${selectedJdk}/bin:${env.PATH}"
                 }
 
                 sh '''
                     ./mvnw clean install -DskipTests
+                    ls -la
                 '''
             }
         }
@@ -102,7 +102,6 @@ def dockerBuild() {
 
 def deployApplication() {
     sh """
-    ssh -o StrictHostKeyChecking=no ${env.HOST_USER}@${env.HOST_IP} '
     docker stop ${env.PROJECT_NAME} || true
     docker rm ${env.PROJECT_NAME} || true
     docker run -d --name ${env.PROJECT_NAME} \\

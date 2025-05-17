@@ -48,14 +48,7 @@ pipeline {
                 }
             }
             steps {
-                steps {
-                    sh '''
-                        echo "Usuário atual: $(whoami)"
-                        echo "Diretório atual: $(pwd)"
-                        echo "Conteúdo do diretório home: $(ls -la /)"
-                        echo "Variável HOME: $HOME"
-                    '''
-                }
+                sh 'pwd'
             }
         }
 

@@ -41,6 +41,11 @@ pipeline {
         }
 
         stage('Build') {
+            agent {
+                docker {
+                    image 'eclipse-temurin:21-jdk'
+                }
+            }
             steps {
                 sh './mvnw clean install -DskipTests'
             }

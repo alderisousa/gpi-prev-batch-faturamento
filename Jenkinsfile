@@ -45,11 +45,27 @@ pipeline {
             agent {
                 docker {
                     image "eclipse-temurin:${params.JAVA_VERSION}-jdk"
-                    args '-v $HOME/.m2:/root/.m2'
                 }
             }
             steps {
-                sh './mvnw clean install -DskipTests'
+                steps {
+                    sh '''
+                        # Comandos de diagnóstico
+                        echo "Usuário atual: $(whoami)"
+                        echo "Diretório atual: $(pwd)"
+                        echo "Conteúdo do diretório home: $(ls -la /)"
+                        echo "Variável HOME: $HOME"
+
+                        # Verificar onde o Maven procura o repositório por padrão
+                        echo "Maven user home: $(./mvnw help:evaluate -Dexpression=maven.repo.local -q -DforceStdout || echo 'Não foi possível determinar')"
+
+                        # Criar diretório local para repositório Maven
+                        mkdir -p ./.m2/repository
+
+                        # Usar repositório local explícito
+                        ./mvnw -Dmaven.repo.local=./.m2/repository clean install -DskipTests
+                    '''
+                }
             }
         }
 

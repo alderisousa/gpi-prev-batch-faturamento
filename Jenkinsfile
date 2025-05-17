@@ -48,7 +48,10 @@ pipeline {
                 }
             }
             steps {
-                sh 'pwd'
+                sh '''
+                    mkdir -p ./.m2/repository
+                    ./mvnw -Dmaven.repo.local=./.m2/repository clean install -DskipTests
+                '''
             }
         }
 

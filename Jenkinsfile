@@ -48,10 +48,7 @@ pipeline {
                 }
             }
             steps {
-                sh '''
-                    mkdir -p ./.m2/repository
-                    ./mvnw -Dmaven.repo.local=./.m2/repository clean install -DskipTests
-                '''
+                sh './mvnw -Dmaven.repo.local=/home/gpi/.m2/repository clean install -DskipTests'
             }
         }
 

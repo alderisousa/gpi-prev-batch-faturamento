@@ -48,7 +48,7 @@ pipeline {
                 }
             }
             environment {
-                MAVEN_OPTS = "-Dmaven.repo.local=/home/gpi/.m2"
+                MAVEN_OPTS = "-Dmaven.repo.local=.m2"
             }
             steps {
                 sh './mvnw clean install -DskipTests'

@@ -55,7 +55,7 @@ pipeline {
 
                 sh '''
                     ./mvnw clean install -DskipTests
-                    ls -la
+                    ls -la target
                 '''
             }
         }

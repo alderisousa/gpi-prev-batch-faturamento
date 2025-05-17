@@ -44,9 +44,11 @@ pipeline {
         stage('Build') {
             agent {
                 docker {
-                    image "maven:3.9-eclipse-temurin-${params.JAVA_VERSION}"
-                    args "-v maven-repo:/root/.m2"
+                    image "eclipse-temurin:${params.JAVA_VERSION}-jdk"
                 }
+            }
+            environment {
+                MAVEN_OPTS = "-Dmaven.repo.local=/home/gpi/.m2"
             }
             steps {
                 sh './mvnw clean install -DskipTests'

@@ -44,6 +44,7 @@ pipeline {
             agent {
                 docker {
                     image 'eclipse-temurin:21-jdk'
+                    args '-v $HOME/.m2:/root/.m2'
                 }
             }
             steps {

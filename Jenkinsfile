@@ -46,6 +46,12 @@ pipeline {
         }
 
         stage('Build') {
+            agent {
+                docker {
+                    image "eclipse-temurin:${params.JAVA_VERSION}-jdk"
+                    args "-v /home/gpi/.m2:/root/.m2"
+                }
+            }
             steps {
                 sh './mvnw clean install -DskipTests'
             }

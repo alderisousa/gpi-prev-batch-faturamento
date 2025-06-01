@@ -14,23 +14,15 @@ pipeline {
         GIT_REPOSITORY = "git@github.com:og-gpi-prev/gpi-prev-batch-faturamento.git"
         AWS_REGION = 'us-east-1'
         REGISTRY = "117890058519.dkr.ecr.us-east-1.amazonaws.com"
-
-        JAVA_21_HOME = "/usr/lib/jvm/java-21-openjdk-amd64"
     }
 
     stages {
         stage('Set Remote Variables') {
             steps {
                 script {
-                    if(params.ENVIRONMENT == 'QA') {
-                        env.APP_NAME_WITH_VERSION = "${env.PROJECT_NAME}:qa-${env.BUILD_NUMBER}"
-                        env.SPRING_PROFILES_ACTIVE = 'qa'
-                        env.HOST_USER = 'gpi'
-                        env.HOST_IP = '192.168.91.160'
-                    } else {
-                        APP_NAME_WITH_VERSION = "${env.PROJECT_NAME}:${env.BUILD_NUMBER}"
-                        SPRING_PROFILES_ACTIVE = 'prod'
-                    }
+                    env.BUILD_DATE = new Date().format('yyyyMMdd-HHmmss', TimeZone.getTimeZone('America/Sao_Paulo'))
+                    def tagSuffix = params.ENVIRONMENT == 'QA' ? "qa-${env.BUILD_NUMBER}" : "${env.BUILD_DATE}"
+                    env.APP_NAME_WITH_VERSION = "${env.PROJECT_NAME}:${tagSuffix}"
                 }
             }
         }
@@ -48,16 +40,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh "java -version"
                     sh './mvnw clean install -DskipTests'
-                }
-            }
-        }
-
-        stage('Login to AWS ECR') {
-            steps {
-                withCredentials([aws(credentialsId: 'aws-credentials', region: "${env.AWS_REGION}")]) {
-                    sh "aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.REGISTRY}"
                 }
             }
         }
@@ -87,29 +70,54 @@ pipeline {
 }
 
 def dockerBuild() {
-    env.IMAGE = "${REGISTRY}/${env.APP_NAME_WITH_VERSION}"
+    if(params.ENVIRONMENT == 'QA') {
+        sh "docker build -t ${PROJECT_NAME} ."
+    } else {
+        withCredentials([aws(credentialsId: 'aws-credentials', region: "${env.AWS_REGION}")]) {
+            sh "aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.REGISTRY}"
+        }
 
-    def jarFile = sh(script: "ls -1 target/*.jar | head -n 1", returnStdout: true).trim()
-    echo "Usando arquivo JAR: ${jarFile}"
+        env.IMAGE = "${REGISTRY}/${env.APP_NAME_WITH_VERSION}"
 
-    sh "docker build --build-arg JAR_FILE=${jarFile} -t ${env.APP_NAME_WITH_VERSION} ."
-    sh "docker tag ${env.APP_NAME_WITH_VERSION} ${env.IMAGE}"
-    sh "docker push ${env.IMAGE}"
+        sh "docker build -t ${env.APP_NAME_WITH_VERSION} ."
+        sh "docker build -t ${PROJECT_NAME}:latest ."
+
+        sh "docker tag ${env.APP_NAME_WITH_VERSION} ${env.IMAGE}"
+        sh "docker tag ${PROJECT_NAME}:latest ${REGISTRY}/${PROJECT_NAME}:latest"
+
+        sh "docker push ${env.IMAGE}"
+        sh "docker push ${REGISTRY}/${PROJECT_NAME}:latest"
+    }
 }
 
 
 def deployApplication() {
-    sh """
-    docker stop ${env.PROJECT_NAME} || true
-    docker rm ${env.PROJECT_NAME} || true
-    docker run -d --name ${env.PROJECT_NAME} \\
-       -p 8001:8080 \\
-       -e SPRING_PROFILES_ACTIVE=${env.SPRING_PROFILES_ACTIVE} \\
-       -e DB_URL=${env.DATABASE_HOST} \\
-       -e DB_USERNAME=${env.DATABASE_NAME} \\
-       -e DB_PASSWORD="${env.DATABASE_PASSWORD}" \\
-       ${env.APP_NAME_WITH_VERSION}
-    docker system prune -af
-    '
-    """
+    if(params.ENVIRONMENT == 'QA') {
+        sh '''
+        docker stop ${PROJECT_NAME} || true
+        docker rm ${PROJECT_NAME} || true
+        docker run -d --name ${PROJECT_NAME} \
+        -p 8081:8080 \
+        ${PROJECT_NAME}
+        docker system prune -af
+        '''
+    } else {
+        sshagent(['ec2-ssh-key']) {
+            sh """
+            ssh -o StrictHostKeyChecking=no ubuntu@54.227.253.137 '
+            aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.REGISTRY} &&
+            docker stop ${PROJECT_NAME} || true &&
+            docker rm ${PROJECT_NAME} || true &&
+            docker pull ${env.IMAGE} &&
+            docker run -d --name ${PROJECT_NAME} \
+            -p 80:8080 \
+            -e API_VERSION=${env.BUILD_DATE} \
+            -e DATABASE_HOST=200.201.200.43 \
+            -e DATABASE_PORT=5000 \
+            ${env.IMAGE} &&
+            docker system prune -af
+            '
+            """
+        }
+    }
 }

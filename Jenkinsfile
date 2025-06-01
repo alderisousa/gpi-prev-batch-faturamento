@@ -1,10 +1,12 @@
 pipeline {
     agent any
+    tools {
+        jdk 'jdk21'
+    }
 
     parameters {
         string(name: 'BRANCH', defaultValue: 'main', description: 'Informe a branch para checkout.')
         choice(name: 'ENVIRONMENT', choices: ['QA', 'PROD'], description: 'Selecione o ambiente para deploy.')
-        choice(name: 'JAVA_VERSION', choices: ['21'], description: 'Selecione a versão do Java para build e deploy.')
     }
 
     environment {
@@ -13,7 +15,6 @@ pipeline {
         AWS_REGION = 'us-east-1'
         REGISTRY = "117890058519.dkr.ecr.us-east-1.amazonaws.com"
 
-        JAVA_17_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"
         JAVA_21_HOME = "/usr/lib/jvm/java-21-openjdk-amd64"
     }
 
@@ -45,14 +46,8 @@ pipeline {
         }
 
         stage('Build') {
-            agent any
             steps {
                 script {
-                    def selectedJdk = params.JAVA_VERSION == '17' ? env.JAVA_17_HOME : env.JAVA_21_HOME
-                    env.JAVA_HOME = selectedJdk
-                    env.PATH = "${selectedJdk}/bin:${env.PATH}"
-
-                    echo "Usando Java versão: ${params.JAVA_VERSION}"
                     sh "java -version"
                     sh './mvnw clean install -DskipTests'
                 }

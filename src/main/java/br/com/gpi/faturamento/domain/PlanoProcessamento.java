@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,12 +21,16 @@ public class PlanoProcessamento {
     private Long idPlano;
     @Column("PESSOA_JURIDICA_ID")
     private Long idPessoaJuridica;
-    @Column("ID_STATUS_PLANO_PROCESSAMENTO")
+    @Column("STATUS_PLANO_PROCESSAMENTO_ID")
     private Long idStatus;
     @Column("ANO_REFERENCIA")
     private String anoReferencia;
     @Column("MES_REFERENCIA")
     private String mesReferencia;
+    @Column("DT_CADASTRO")
+    private LocalDateTime dataCadastro;
+    @Column("DT_PROCESSAMENTO")
+    private LocalDateTime dataProcessamento;
 
     @Transient
     private List<ArrecadacaoMovimento> movimentos = new ArrayList<>();

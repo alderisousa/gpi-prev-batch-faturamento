@@ -19,8 +19,8 @@ public class ArrecadacaoMovimento {
     private Long id;
     @Column("CONTRIBUICAO_ID")
     private Long idContribuicao;
-    @Column("PESSOA_ID")
-    private Long idPessoa;
+    @Column("PESSOA_PLANO_ID")
+    private Long idPessoaPlano;
     @Column("ARRECADACAO_ID")
     private Long idArrecadacao;
     @Column("INDICE_ARRECADACAO_ID")
@@ -44,7 +44,7 @@ public class ArrecadacaoMovimento {
 
     public ArrecadacaoMovimento(DadosParticipante dados) {
         this.idContribuicao = dados.getIdContribuicao();
-        this.idPessoa = dados.getIdPessoa();
+        this.idPessoaPlano = dados.getIdPessoaPlano();
         this.idTipoContribuicao = dados.getIdTipoContribuicao();
         this.idIndiceArrecadacao = dados.getIdIndice();
         this.idIndiceRecebido = dados.getIdIndice();

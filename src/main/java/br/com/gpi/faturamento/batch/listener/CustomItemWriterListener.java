@@ -19,7 +19,7 @@ public class CustomItemWriterListener implements ItemWriteListener<PlanoProcessa
     public void onWriteError(Exception exception, Chunk<? extends PlanoProcessamento> item) {
         log.error(exception.getMessage(), exception.getCause());
         for (var planoProcessamento : item.getItems()) {
-            service.atualizarParaPendente(planoProcessamento);
+            service.atualizarParaProcessadoComErro(planoProcessamento, exception);
         }
     }
 }

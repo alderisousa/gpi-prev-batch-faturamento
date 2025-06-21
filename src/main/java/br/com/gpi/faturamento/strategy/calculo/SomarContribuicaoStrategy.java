@@ -33,13 +33,13 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
                                 (idsContribuicao != null && idsContribuicao.contains(m.getIdContribuicao())) ||
                                 (idsTipoContribuicao != null && idsTipoContribuicao.contains(m.getIdTipoContribuicao()))
                             )
-                            && dados.getIdPessoa().equals(m.getIdPessoa()))
+                            && dados.getIdPessoaPlano().equals(m.getIdPessoaPlano()))
                     .toList();
 
             BigDecimal somaContribuicao = movimentosAux.stream()
                     .map(ArrecadacaoMovimento::getValorNominal)
                     .reduce(BigDecimal::add)
-                    .orElseThrow();
+                    .orElse(BigDecimal.ZERO);
             BigDecimal percentual = getPercentual(dados, parametro);
             return NumberUtils.multiplicarValor(somaContribuicao, percentual);
         } catch (Exception e) {
@@ -59,7 +59,7 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
             } else {
                 List<ArrecadacaoMovimento> movimentosAux = movimentos.stream()
                         .filter(m -> filtro.getIdsContribuicao().contains(m.getIdContribuicao())
-                                && dados.getIdPessoa().equals(m.getIdPessoa()))
+                                && dados.getIdPessoaPlano().equals(m.getIdPessoaPlano()))
                         .toList();
 
                 switch (filtro.getFuncao()) {
@@ -88,8 +88,7 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
             }
         }
 
-        assert aux != null;
-        return aux.getIdContribuicao();
+        return aux == null ? null : aux.getIdContribuicao();
     }
 
     private Long getIdMaxContribuicao(List<ArrecadacaoMovimento> movimentos) {
@@ -105,8 +104,7 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
             }
         }
 
-        assert aux != null;
-        return aux.getIdContribuicao();
+        return aux == null ? null : aux.getIdContribuicao();
     }
 
     private BigDecimal getPercentual(DadosParticipante dados, ParametroSomarContribuicaoVO parametro) {

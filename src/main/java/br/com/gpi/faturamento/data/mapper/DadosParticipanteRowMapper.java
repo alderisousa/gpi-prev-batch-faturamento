@@ -22,7 +22,6 @@ public class DadosParticipanteRowMapper implements RowMapper<DadosParticipante> 
                 .dataAdmissao(Optional.ofNullable(rs.getDate("DATA_ADMISSAO")).map(Date::toLocalDate).orElse(null))
                 .valorUR(rs.getBigDecimal("VALOR_UR"))
                 .idTipoContribuicao(rs.getLong("TIPO_CONTRIBUICAO_ID"))
-                .idAtribuicaoPagamento(rs.getLong("ATRIBUICAO_PAGAMENTO"))
                 .idRotinaElegibilidade(rs.getLong("ROTINA_ELEGIBILIDADE_ID"))
                 .nmRotinaElegibilidade(rs.getString("ROTINA_ELEGIBILIDADE_DESCRICAO"))
                 .jsonParametroElegibilidade(rs.getString("PARAMETRO_ELEGIBILIDADE"))
@@ -36,7 +35,6 @@ public class DadosParticipanteRowMapper implements RowMapper<DadosParticipante> 
                 .pctContribuicao(rs.getBigDecimal("PERCENTUAL"))
                 .dataNascimento(Optional.ofNullable(rs.getDate("DATA_NASCIMENTO")).map(Date::toLocalDate).orElse(null))
                 .distribuicaoFlag(rs.getString("DISTRIBUICAO_FLAG"))
-                .contribuicaoFlag(rs.getString("CONTRIBUICAO_FLAG"))
                 .idPessoaPlano(rs.getLong("PESSOA_PLANO_ID"))
                 .idPessoaContribuicao(rs.getLong("PESSOA_CONTRIBUICAO_ID"))
                 .build();

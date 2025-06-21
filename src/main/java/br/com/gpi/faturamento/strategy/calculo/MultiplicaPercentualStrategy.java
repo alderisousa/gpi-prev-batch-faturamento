@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.List;
 
-@Component("MULTIPLICA_PERCENTUAL")
+@Component("MULTIPLICA_PERCENTUAL_UR")
 public class MultiplicaPercentualStrategy implements RotinaCalculoStrategy {
 
     @Override

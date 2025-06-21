@@ -9,7 +9,8 @@ public enum StatusProcessamento {
 
     PENDENTE(1L),
     EM_PROCESSAMENTO(2L),
-    PROCESSADO(3L);
+    PROCESSADO(3L),
+    PROCESSADO_ERRO(4L);
 
     private final Long id;
 

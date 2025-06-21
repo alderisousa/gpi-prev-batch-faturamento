@@ -8,6 +8,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,17 +33,28 @@ public class Arrecadacao {
     private LocalDate dataPagamento;
     @Column("VALOR_NOMINAL")
     private BigDecimal valorNominal;
+    @Column("INDICE_ID")
+    private Long idIndice;
     @Transient
     private List<ArrecadacaoMovimento> movimentos = new ArrayList<>();
 
     public Arrecadacao(ArrecadacaoMovimento movimento) {
+
+        LocalDate dataCompetencia = LocalDate.of(
+                Integer.parseInt(movimento.getAnoReferencia()),
+                Integer.parseInt(movimento.getMesReferencia()),
+                1);
+
+        LocalDate dtVencimento = ChronoUnit.DAYS.addTo(ChronoUnit.MONTHS.addTo(dataCompetencia, 1), -1);
+
         this.idContribuicao = movimento.getIdContribuicao();
         this.anoCompetencia = movimento.getAnoReferencia();
         this.mesCompetencia = movimento.getMesReferencia();
-        this.dataVencimento = LocalDate.now(); //TODO verificar
-        this.dataPagamento = LocalDate.now(); //TODO verificar
+        this.dataVencimento = dtVencimento;
+        this.dataPagamento = dtVencimento;
         this.valorNominal = movimento.getValorNominal();
         this.idPerfilInvestimento = movimento.getIdPerfilInvestimento();
+        this.idIndice = movimento.getIdIndiceArrecadacao();
         this.movimentos.add(movimento);
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +36,9 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
     @Override
     public PlanoProcessamento process(PlanoProcessamento item) throws Exception {
 
-        List<DadosParticipante> dadosParticipantes = dadosParticipanteRepository.listarParticipantes(item.getIdPessoaJuridica(), item.getIdPlano());
+        LocalDate dataCompetencia = LocalDate.of(Integer.parseInt(item.getAnoReferencia()), Integer.parseInt(item.getMesReferencia()), 1);
+
+        List<DadosParticipante> dadosParticipantes = dadosParticipanteRepository.listarParticipantes(item.getIdPessoaJuridica(), item.getIdPlano(), dataCompetencia);
 
         List<Distribuicao> distribuicoes = listarDistribuicao(dadosParticipantes);
 

@@ -26,6 +26,6 @@ public class CustomItemProcessListener implements ItemProcessListener<PlanoProce
 
     @Override
     public void onProcessError(PlanoProcessamento item, Exception e) {
-        planoProcessamentoService.atualizarParaPendente(item);
+        planoProcessamentoService.atualizarParaProcessadoComErro(item, e);
     }
 }

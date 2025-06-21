@@ -18,6 +18,10 @@ public class NumberUtils {
     }
 
     public static BigDecimal percentualParaFaixa(BigDecimal valor) {
+        if (valor == null) {
+            return BigDecimal.ZERO;
+        }
+
         return valor.divide(BigDecimal.valueOf(100), 8, RoundingMode.HALF_EVEN);
     }
 

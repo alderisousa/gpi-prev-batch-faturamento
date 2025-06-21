@@ -97,7 +97,6 @@ def deployApplication() {
         docker stop ${PROJECT_NAME} || true
         docker rm ${PROJECT_NAME} || true
         docker run -d --name ${PROJECT_NAME} \
-        -p 8081:8080 \
         ${PROJECT_NAME}
         docker system prune -af
         '''

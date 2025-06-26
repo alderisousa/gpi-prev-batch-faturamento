@@ -1,5 +1,7 @@
 package br.com.gpi.faturamento.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -12,6 +14,8 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @Table("ARRECADACAO_MOVIMENTO")
+@Builder
+@AllArgsConstructor
 public class ArrecadacaoMovimento {
 
     @Id
@@ -33,8 +37,12 @@ public class ArrecadacaoMovimento {
     private String anoReferencia;
     @Column("MES_REFERENCIA")
     private String mesReferencia;
-    @Column("VALOR_NOMINAL")
-    private BigDecimal valorNominal;
+    @Column("VALOR_CALCULADO")
+    private BigDecimal valorCalculado;
+    @Column("VALOR_RECEBIDO")
+    private BigDecimal valorRecebido;
+    @Column("VALOR_FINAL")
+    private BigDecimal valorFinal;
 
     @Transient
     private Long idTipoContribuicao;
@@ -49,5 +57,8 @@ public class ArrecadacaoMovimento {
         this.idIndiceArrecadacao = dados.getIdIndice();
         this.idIndiceRecebido = dados.getIdIndice();
         this.contribuicaoFlag = dados.getContribuicaoFlag();
+        this.valorCalculado = BigDecimal.ZERO;
+        this.valorRecebido = BigDecimal.ZERO;
+        this.valorFinal = BigDecimal.ZERO;
     }
 }

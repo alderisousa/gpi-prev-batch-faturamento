@@ -87,7 +87,7 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
         if ("S".equals(dados.getDistribuicaoFlag()) && !distribuicoesPessoa.isEmpty()) {
             for (var distribuicao : distribuicoesPessoa) {
                 ArrecadacaoMovimento arrecadacao = new ArrecadacaoMovimento(dados);
-                arrecadacao.setValorNominal(NumberUtils.multiplicarValor(valorContribuicao,
+                arrecadacao.setValorCalculado(NumberUtils.multiplicarValor(valorContribuicao,
                         NumberUtils.percentualParaFaixa(distribuicao.getPercentualDistribuicao())));
                 arrecadacao.setAnoReferencia(item.getAnoReferencia());
                 arrecadacao.setMesReferencia(item.getMesReferencia());
@@ -96,7 +96,7 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
             }
         } else {
             ArrecadacaoMovimento arrecadacao = new ArrecadacaoMovimento(dados);
-            arrecadacao.setValorNominal(valorContribuicao);
+            arrecadacao.setValorCalculado(valorContribuicao);
             arrecadacao.setAnoReferencia(item.getAnoReferencia());
             arrecadacao.setMesReferencia(item.getMesReferencia());
             faturamentos.add(arrecadacao);

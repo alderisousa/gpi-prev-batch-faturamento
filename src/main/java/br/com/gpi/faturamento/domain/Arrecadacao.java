@@ -1,6 +1,9 @@
 package br.com.gpi.faturamento.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
@@ -14,6 +17,9 @@ import java.util.List;
 
 @Data
 @Table("ARRECADACAO")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Arrecadacao {
 
     @Id
@@ -31,8 +37,12 @@ public class Arrecadacao {
     private LocalDate dataVencimento;
     @Column("DATA_PAGAMENTO")
     private LocalDate dataPagamento;
-    @Column("VALOR_NOMINAL")
-    private BigDecimal valorNominal;
+    @Column("VALOR_CALCULADO")
+    private BigDecimal valorCalculado;
+    @Column("VALOR_RECEBIDO")
+    private BigDecimal valorRecebido;
+    @Column("VALOR_FINAL")
+    private BigDecimal valorFinal;
     @Column("INDICE_ID")
     private Long idIndice;
     @Transient
@@ -52,9 +62,18 @@ public class Arrecadacao {
         this.mesCompetencia = movimento.getMesReferencia();
         this.dataVencimento = dtVencimento;
         this.dataPagamento = dtVencimento;
-        this.valorNominal = movimento.getValorNominal();
+        this.valorCalculado = movimento.getValorCalculado();
+        this.valorRecebido = movimento.getValorRecebido();
+        this.valorFinal = movimento.getValorFinal();
         this.idPerfilInvestimento = movimento.getIdPerfilInvestimento();
         this.idIndice = movimento.getIdIndiceArrecadacao();
         this.movimentos.add(movimento);
+    }
+
+    public Arrecadacao zerarValores() {
+        this.valorCalculado = BigDecimal.ZERO;
+        this.valorRecebido = BigDecimal.ZERO;
+        this.valorFinal = BigDecimal.ZERO;
+        return this;
     }
 }

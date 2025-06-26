@@ -19,13 +19,13 @@ public class ArrecadacaoService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void limparProcessamento(PlanoProcessamento item) {
-        arrecadacaoMovimentoRepository.deleteMovimentoPorCompetencia(
-                item.getIdPessoaJuridica(),
-                item.getMesReferencia(),
-                item.getAnoReferencia());
-        arrecadacaoRepository.deleteArrecadacoesPorCompetencia(
-                item.getIdPessoaJuridica(),
-                item.getMesReferencia(),
-                item.getAnoReferencia());
+//        arrecadacaoMovimentoRepository.deleteMovimentoPorCompetencia(
+//                item.getIdPessoaJuridica(),
+//                item.getMesReferencia(),
+//                item.getAnoReferencia());
+//        arrecadacaoRepository.deleteArrecadacoesPorCompetencia(
+//                item.getIdPessoaJuridica(),
+//                item.getMesReferencia(),
+//                item.getAnoReferencia());
     }
 }

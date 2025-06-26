@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -33,19 +34,55 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
     public void write(Chunk<? extends PlanoProcessamento> chunk) throws Exception {
 
         for (PlanoProcessamento processamento : chunk) {
+
+            List<Arrecadacao> arrecadacoes = arrecadacaoRepository.listar(
+                    processamento.getIdPessoaJuridica(),
+                    processamento.getMesReferencia(),
+                    processamento.getAnoReferencia());
+
+            List<ArrecadacaoMovimento> movimentos = arrecadacaoMovimentoRepository.listar(
+                    processamento.getIdPessoaJuridica(),
+                    processamento.getMesReferencia(),
+                    processamento.getAnoReferencia());
+
             Map<String, Arrecadacao> mapArrecadacao = new HashMap<>();
             for (var arrecadacaoMovimento : processamento.getMovimentos()) {
                 if (!mapArrecadacao.containsKey(getKey(arrecadacaoMovimento))) {
-                    mapArrecadacao.put(getKey(arrecadacaoMovimento), new Arrecadacao(arrecadacaoMovimento));
+                    Arrecadacao arrecadacao = getArrecadacao(arrecadacoes, arrecadacaoMovimento);
+                    mapArrecadacao.put(getKey(arrecadacaoMovimento), arrecadacao);
                 } else {
                     Arrecadacao arrecadacao = mapArrecadacao.get(getKey(arrecadacaoMovimento));
-                    arrecadacao.getMovimentos().add(arrecadacaoMovimento);
-                    arrecadacao.setValorNominal(arrecadacao.getValorNominal().add(arrecadacaoMovimento.getValorNominal()));
+                    ArrecadacaoMovimento movimento = getArrecadacaoMovimento(movimentos, arrecadacaoMovimento);
+                    arrecadacao.getMovimentos().add(movimento);
+
+                    arrecadacao.setValorCalculado(arrecadacao.getValorCalculado().add(movimento.getValorCalculado()));
+                    arrecadacao.setValorRecebido(arrecadacao.getValorRecebido().add(movimento.getValorRecebido()));
+                    arrecadacao.setValorFinal(arrecadacao.getValorFinal().add(movimento.getValorFinal()));
                 }
             }
             salvarArrecadacoes(mapArrecadacao);
             atualizarPlanoProcessamento(processamento);
         }
+    }
+
+    private ArrecadacaoMovimento getArrecadacaoMovimento(List<ArrecadacaoMovimento> movimentos, ArrecadacaoMovimento arrecadacaoMovimento) {
+        return movimentos.stream()
+                .filter(m -> m.getIdContribuicao().equals(arrecadacaoMovimento.getIdContribuicao())
+                    && m.getIdPessoaPlano().equals(arrecadacaoMovimento.getIdPessoaPlano())
+                    && Optional.ofNullable(m.getIdPerfilInvestimento()).equals(Optional.ofNullable(arrecadacaoMovimento.getIdPerfilInvestimento()))
+                )
+                .findFirst()
+                .orElse(arrecadacaoMovimento);
+    }
+
+    private Arrecadacao getArrecadacao(List<Arrecadacao> arrecadacoes, ArrecadacaoMovimento arrecadacaoMovimento) {
+        return arrecadacoes.stream()
+                .filter(a -> a.getIdContribuicao().equals(arrecadacaoMovimento.getIdContribuicao())
+                        && Optional.ofNullable(a.getIdPerfilInvestimento()).equals(Optional.ofNullable(arrecadacaoMovimento.getIdPerfilInvestimento()))
+                )
+                .map(Arrecadacao::zerarValores)
+                .findFirst()
+                .orElse(new Arrecadacao(arrecadacaoMovimento));
     }
 
     private String getKey(ArrecadacaoMovimento arrecadacaoMovimento) {

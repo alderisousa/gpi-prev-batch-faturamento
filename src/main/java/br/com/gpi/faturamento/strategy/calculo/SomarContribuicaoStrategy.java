@@ -37,7 +37,7 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
                     .toList();
 
             BigDecimal somaContribuicao = movimentosAux.stream()
-                    .map(ArrecadacaoMovimento::getValorNominal)
+                    .map(ArrecadacaoMovimento::getValorCalculado)
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
             BigDecimal percentual = getPercentual(dados, parametro);
@@ -82,7 +82,7 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
             if (aux == null) {
                 aux = mov;
             } else {
-                if (aux.getValorNominal().compareTo(mov.getValorNominal()) > 0) {
+                if (aux.getValorCalculado().compareTo(mov.getValorCalculado()) > 0) {
                     aux = mov;
                 }
             }
@@ -98,7 +98,7 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
             if (aux == null) {
                 aux = mov;
             } else {
-                if (aux.getValorNominal().compareTo(mov.getValorNominal()) < 0) {
+                if (aux.getValorCalculado().compareTo(mov.getValorCalculado()) < 0) {
                     aux = mov;
                 }
             }

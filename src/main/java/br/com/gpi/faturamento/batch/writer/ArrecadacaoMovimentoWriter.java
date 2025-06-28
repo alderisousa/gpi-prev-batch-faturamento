@@ -45,19 +45,28 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
                     processamento.getMesReferencia(),
                     processamento.getAnoReferencia());
 
+            arrecadacaoRepository.saveAll(arrecadacoes);
+            arrecadacaoMovimentoRepository.saveAll(movimentos);
+
             Map<String, Arrecadacao> mapArrecadacao = new HashMap<>();
             for (var arrecadacaoMovimento : processamento.getMovimentos()) {
                 if (!mapArrecadacao.containsKey(getKey(arrecadacaoMovimento))) {
                     Arrecadacao arrecadacao = getArrecadacao(arrecadacoes, arrecadacaoMovimento);
+
+                    ArrecadacaoMovimento movimento = getArrecadacaoMovimento(movimentos, arrecadacaoMovimento);
+                    movimento.setValorCalculado(arrecadacaoMovimento.getValorCalculado());
+                    arrecadacao.getMovimentos().add(movimento);
+
+                    arrecadacao.somar(movimento);
+
                     mapArrecadacao.put(getKey(arrecadacaoMovimento), arrecadacao);
                 } else {
                     Arrecadacao arrecadacao = mapArrecadacao.get(getKey(arrecadacaoMovimento));
                     ArrecadacaoMovimento movimento = getArrecadacaoMovimento(movimentos, arrecadacaoMovimento);
+                    movimento.setValorCalculado(arrecadacaoMovimento.getValorCalculado());
                     arrecadacao.getMovimentos().add(movimento);
 
-                    arrecadacao.setValorCalculado(arrecadacao.getValorCalculado().add(movimento.getValorCalculado()));
-                    arrecadacao.setValorRecebido(arrecadacao.getValorRecebido().add(movimento.getValorRecebido()));
-                    arrecadacao.setValorFinal(arrecadacao.getValorFinal().add(movimento.getValorFinal()));
+                    arrecadacao.somar(movimento);
                 }
             }
             salvarArrecadacoes(mapArrecadacao);
@@ -80,7 +89,6 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
                 .filter(a -> a.getIdContribuicao().equals(arrecadacaoMovimento.getIdContribuicao())
                         && Optional.ofNullable(a.getIdPerfilInvestimento()).equals(Optional.ofNullable(arrecadacaoMovimento.getIdPerfilInvestimento()))
                 )
-                .map(Arrecadacao::zerarValores)
                 .findFirst()
                 .orElse(new Arrecadacao(arrecadacaoMovimento));
     }

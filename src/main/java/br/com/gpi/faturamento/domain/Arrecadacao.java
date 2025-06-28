@@ -62,18 +62,16 @@ public class Arrecadacao {
         this.mesCompetencia = movimento.getMesReferencia();
         this.dataVencimento = dtVencimento;
         this.dataPagamento = dtVencimento;
-        this.valorCalculado = movimento.getValorCalculado();
-        this.valorRecebido = movimento.getValorRecebido();
-        this.valorFinal = movimento.getValorFinal();
-        this.idPerfilInvestimento = movimento.getIdPerfilInvestimento();
-        this.idIndice = movimento.getIdIndiceArrecadacao();
-        this.movimentos.add(movimento);
-    }
-
-    public Arrecadacao zerarValores() {
         this.valorCalculado = BigDecimal.ZERO;
         this.valorRecebido = BigDecimal.ZERO;
         this.valorFinal = BigDecimal.ZERO;
-        return this;
+        this.idPerfilInvestimento = movimento.getIdPerfilInvestimento();
+        this.idIndice = movimento.getIdIndiceArrecadacao();
+    }
+
+    public void somar(ArrecadacaoMovimento movimento) {
+        this.valorCalculado = this.valorCalculado.add(movimento.getValorCalculado());
+        this.valorRecebido = this.valorRecebido.add(movimento.getValorRecebido());
+        this.valorFinal = this.valorFinal.add(movimento.getValorFinal());
     }
 }

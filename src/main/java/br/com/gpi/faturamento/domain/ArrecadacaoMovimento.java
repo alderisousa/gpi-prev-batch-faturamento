@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @Table("ARRECADACAO_MOVIMENTO")
 @Builder
 @AllArgsConstructor
-public class ArrecadacaoMovimento {
+public class ArrecadacaoMovimento extends ArrecadacaoMovimentoKey {
 
     @Id
     @Column("ID")
@@ -60,5 +60,18 @@ public class ArrecadacaoMovimento {
         this.valorCalculado = BigDecimal.ZERO;
         this.valorRecebido = BigDecimal.ZERO;
         this.valorFinal = BigDecimal.ZERO;
+    }
+
+    public ArrecadacaoMovimento(ArrecadacaoCarga dados) {
+        this.idContribuicao = dados.getIdContribuicao();
+        this.idPessoaPlano = dados.getIdPessoaPlano();
+        this.idIndiceArrecadacao = dados.getIdIndice();
+        this.idIndiceRecebido = dados.getIdIndice();
+        this.valorCalculado = BigDecimal.ZERO;
+        this.valorRecebido = dados.getValorRecebido();
+        this.valorFinal = dados.getValorRecebido();
+        this.idPerfilInvestimento = dados.getIdPerfilInvestimento();
+        this.anoReferencia = dados.getAnoReferencia();
+        this.mesReferencia = dados.getMesReferencia();
     }
 }

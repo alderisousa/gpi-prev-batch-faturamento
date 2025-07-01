@@ -23,8 +23,8 @@ public class ArrecadacaoMovimentoRowMapper implements RowMapper<ArrecadacaoMovim
                 .anoReferencia(rs.getString("ANO_REFERENCIA"))
                 .mesReferencia(rs.getString("MES_REFERENCIA"))
                 .valorCalculado(BigDecimal.ZERO)
-                .valorRecebido(rs.getBigDecimal("VALOR_RECEBIDO"))
-                .valorFinal(rs.getBigDecimal("VALOR_FINAL"))
+                .valorRecebido(BigDecimal.ZERO)
+                .valorFinal(BigDecimal.ZERO)
                 .build();
     }
 

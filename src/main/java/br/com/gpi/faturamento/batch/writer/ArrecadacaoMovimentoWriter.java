@@ -1,8 +1,7 @@
 package br.com.gpi.faturamento.batch.writer;
 
-import br.com.gpi.faturamento.domain.Arrecadacao;
-import br.com.gpi.faturamento.domain.ArrecadacaoMovimento;
-import br.com.gpi.faturamento.domain.PlanoProcessamento;
+import br.com.gpi.faturamento.domain.*;
+import br.com.gpi.faturamento.repository.ArrecadacaoCargaRepository;
 import br.com.gpi.faturamento.repository.ArrecadacaoMovimentoRepository;
 import br.com.gpi.faturamento.repository.ArrecadacaoRepository;
 import br.com.gpi.faturamento.service.PlanoProcessamentoService;
@@ -12,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento> {
@@ -29,6 +25,9 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
 
     @Autowired
     private ArrecadacaoMovimentoRepository arrecadacaoMovimentoRepository;
+
+    @Autowired
+    private ArrecadacaoCargaRepository arrecadacaoCargaRepository;
 
     @Override
     public void write(Chunk<? extends PlanoProcessamento> chunk) throws Exception {
@@ -45,43 +44,84 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
                     processamento.getMesReferencia(),
                     processamento.getAnoReferencia());
 
+            List<ArrecadacaoCarga> recebidos = arrecadacaoCargaRepository.listar(
+                    processamento.getIdPessoaJuridica(),
+                    processamento.getMesReferencia(),
+                    processamento.getAnoReferencia());
+
+            List<ArrecadacaoCarga> recebidosAux = new ArrayList<>();
+
             arrecadacaoRepository.saveAll(arrecadacoes);
             arrecadacaoMovimentoRepository.saveAll(movimentos);
 
             Map<String, Arrecadacao> mapArrecadacao = new HashMap<>();
             for (var arrecadacaoMovimento : processamento.getMovimentos()) {
+                ArrecadacaoMovimento movimento = getArrecadacaoMovimento(movimentos, arrecadacaoMovimento);
+                Arrecadacao arrecadacao;
                 if (!mapArrecadacao.containsKey(getKey(arrecadacaoMovimento))) {
-                    Arrecadacao arrecadacao = getArrecadacao(arrecadacoes, arrecadacaoMovimento);
-
-                    ArrecadacaoMovimento movimento = getArrecadacaoMovimento(movimentos, arrecadacaoMovimento);
-                    movimento.setValorCalculado(arrecadacaoMovimento.getValorCalculado());
-                    arrecadacao.getMovimentos().add(movimento);
-
-                    arrecadacao.somar(movimento);
-
+                    arrecadacao = getArrecadacao(arrecadacoes, arrecadacaoMovimento);
                     mapArrecadacao.put(getKey(arrecadacaoMovimento), arrecadacao);
                 } else {
-                    Arrecadacao arrecadacao = mapArrecadacao.get(getKey(arrecadacaoMovimento));
-                    ArrecadacaoMovimento movimento = getArrecadacaoMovimento(movimentos, arrecadacaoMovimento);
-                    movimento.setValorCalculado(arrecadacaoMovimento.getValorCalculado());
-                    arrecadacao.getMovimentos().add(movimento);
-
-                    arrecadacao.somar(movimento);
+                    arrecadacao = mapArrecadacao.get(getKey(arrecadacaoMovimento));
                 }
+
+                Optional<ArrecadacaoCarga> recebido = getArrecadacaoCarga(recebidos, arrecadacaoMovimento);
+                if (recebido.isPresent()) {
+                    recebidosAux.add(recebido.get());
+                    movimento.setValorRecebido(recebido.get().getValorRecebido());
+                    movimento.setValorFinal(recebido.get().getValorRecebido());
+                }
+                movimento.setValorCalculado(arrecadacaoMovimento.getValorCalculado());
+                arrecadacao.getMovimentos().add(movimento);
+                arrecadacao.somar(movimento);
             }
+            recebidos.removeAll(recebidosAux);
+            adicionaRecebidosNaoCalculado(mapArrecadacao, recebidos, movimentos);
             salvarArrecadacoes(mapArrecadacao);
             atualizarPlanoProcessamento(processamento);
         }
     }
 
+    private void adicionaRecebidosNaoCalculado(Map<String, Arrecadacao> mapArrecadacao,
+                                               List<ArrecadacaoCarga> recebidos,
+                                               List<ArrecadacaoMovimento> movimentos) {
+
+        for (var arrecadacao : recebidos) {
+
+            Optional<ArrecadacaoMovimento> optMovimento = getArrecadacaoMovimento(movimentos, arrecadacao);
+
+            String key = getKey(arrecadacao);
+            if (mapArrecadacao.containsKey(key)) {
+                ArrecadacaoMovimento movimento = optMovimento.orElse(new ArrecadacaoMovimento(arrecadacao));
+                movimento.setValorRecebido(arrecadacao.getValorRecebido());
+                movimento.setValorFinal(arrecadacao.getValorRecebido());
+                mapArrecadacao.get(key).somar(movimento);
+                mapArrecadacao.get(key).getMovimentos().add(movimento);
+            }
+        }
+    }
+
     private ArrecadacaoMovimento getArrecadacaoMovimento(List<ArrecadacaoMovimento> movimentos, ArrecadacaoMovimento arrecadacaoMovimento) {
+        return getArrecadacaoMovimento(movimentos, (ArrecadacaoMovimentoKey)arrecadacaoMovimento)
+                .orElse(arrecadacaoMovimento);
+    }
+
+    private Optional<ArrecadacaoMovimento> getArrecadacaoMovimento(List<ArrecadacaoMovimento> movimentos, ArrecadacaoMovimentoKey key) {
+        return movimentos.stream()
+                .filter(m -> m.getIdContribuicao().equals(key.getIdContribuicao())
+                    && m.getIdPessoaPlano().equals(key.getIdPessoaPlano())
+                    && Optional.ofNullable(m.getIdPerfilInvestimento()).equals(Optional.ofNullable(key.getIdPerfilInvestimento()))
+                )
+                .findFirst();
+    }
+
+    private Optional<ArrecadacaoCarga> getArrecadacaoCarga(List<ArrecadacaoCarga> movimentos, ArrecadacaoMovimento arrecadacaoMovimento) {
         return movimentos.stream()
                 .filter(m -> m.getIdContribuicao().equals(arrecadacaoMovimento.getIdContribuicao())
-                    && m.getIdPessoaPlano().equals(arrecadacaoMovimento.getIdPessoaPlano())
-                    && Optional.ofNullable(m.getIdPerfilInvestimento()).equals(Optional.ofNullable(arrecadacaoMovimento.getIdPerfilInvestimento()))
+                        && m.getIdPessoaPlano().equals(arrecadacaoMovimento.getIdPessoaPlano())
+                        && Optional.ofNullable(m.getIdPerfilInvestimento()).equals(Optional.ofNullable(arrecadacaoMovimento.getIdPerfilInvestimento()))
                 )
-                .findFirst()
-                .orElse(arrecadacaoMovimento);
+                .findFirst();
     }
 
     private Arrecadacao getArrecadacao(List<Arrecadacao> arrecadacoes, ArrecadacaoMovimento arrecadacaoMovimento) {
@@ -93,9 +133,9 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
                 .orElse(new Arrecadacao(arrecadacaoMovimento));
     }
 
-    private String getKey(ArrecadacaoMovimento arrecadacaoMovimento) {
-        Long perfilInvestimento = Optional.ofNullable(arrecadacaoMovimento.getIdPerfilInvestimento()).orElse(0L);
-        return arrecadacaoMovimento.getIdContribuicao() + "_" + perfilInvestimento;
+    private String getKey(ArrecadacaoMovimentoKey key) {
+        Long perfilInvestimento = Optional.ofNullable(key.getIdPerfilInvestimento()).orElse(0L);
+        return key.getIdContribuicao() + "_" + perfilInvestimento;
     }
 
     private void atualizarPlanoProcessamento(PlanoProcessamento processamento) {

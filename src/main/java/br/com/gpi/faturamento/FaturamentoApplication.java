@@ -46,7 +46,7 @@ public class FaturamentoApplication {
         }
     }
 
-    @Scheduled(fixedRate = 300000)
+    @Scheduled(fixedRate = 60000)
     public void runJob() {
 
         try {

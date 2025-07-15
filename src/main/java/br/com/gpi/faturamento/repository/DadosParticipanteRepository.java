@@ -40,12 +40,14 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                            ppj.DISTRIBUICAO_FLAG,
                            pp.ID PESSOA_PLANO_ID,
                            pc.ID PESSOA_CONTRIBUICAO_ID,
-                           con.ATRIBUICAO_PAGAMENTO_ID
+                           con.ATRIBUICAO_PAGAMENTO_ID,
+                           con.ORDEM
                       from CONTRIBUICAO             con
                       join PLANO_GRUPO_CONTRIBUICAO pgc on con.ID              = pgc.CONTRIBUICAO_ID
                       join PESSOA_PLANO_GRUPO       ppg on ppg.PLANO_GRUPO_ID  = pgc.PLANO_GRUPO_ID
                       join PLANO_GRUPO              pg  on pg.ID               = ppg.PLANO_GRUPO_ID
                       join PESSOA_PLANO             pp  on ppg.PESSOA_PLANO_ID = pp.ID
+                                                       and (con.OPCAO_MODALIDADE_ID = pp.OPCAO_MODALIDADE_ID or con.ATRIBUICAO_PAGAMENTO_ID = 2)
                       join PLANO                    pla on pla.ID              = con.PLANO_ID
                       join PESSOA                   pes on pes.ID              = pp.PESSOA_ID
                       join VINCULO                  vin on vin.PESSOA_ID       = pp.PESSOA_ID
@@ -64,7 +66,7 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                        and (:idPlano is null or con.PLANO_ID = :idPlano)
                        and :dataCompetencia between con.DATA_INICIAL  and ISNULL(con.DATA_FINAL, :dataCompetencia)
                    ) vw
-             order by vw.PESSOA_ID, vw.ATRIBUICAO_PAGAMENTO_ID, vw.ROTINA_CALCULO_ID
+             order by vw.PESSOA_ID, vw.ATRIBUICAO_PAGAMENTO_ID, case when vw.ORDEM is null then 9999 else vw.ORDEM end
            """, rowMapperClass = DadosParticipanteRowMapper.class)
     List<DadosParticipante> listarParticipantes(@Param("idPessoaJuridica") Long idPessoaJuridica,
                                                 @Param("idPlano") Long idPlano,

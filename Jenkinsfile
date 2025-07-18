@@ -109,7 +109,6 @@ def deployApplication() {
             docker rm ${PROJECT_NAME} || true &&
             docker pull ${env.IMAGE} &&
             docker run -d --name ${PROJECT_NAME} \
-            -p 80:8080 \
             -e API_VERSION=${env.BUILD_DATE} \
             -e DATABASE_HOST=200.201.200.43 \
             -e DATABASE_PORT=5000 \

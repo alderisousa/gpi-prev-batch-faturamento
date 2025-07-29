@@ -92,30 +92,51 @@ def dockerBuild() {
 
 
 def deployApplication() {
-    if(params.ENVIRONMENT == 'QA') {
-        sh '''
-        docker stop ${PROJECT_NAME} || true
-        docker rm ${PROJECT_NAME} || true
-        docker run -d --name ${PROJECT_NAME} \
-        ${PROJECT_NAME}
-        docker system prune -af
-        '''
-    } else {
-        sshagent(['ec2-ssh-key']) {
-            sh """
-            ssh -o StrictHostKeyChecking=no ubuntu@54.227.253.137 '
-            aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.REGISTRY} &&
-            docker stop ${PROJECT_NAME} || true &&
-            docker rm ${PROJECT_NAME} || true &&
-            docker pull ${env.IMAGE} &&
-            docker run -d --name ${PROJECT_NAME} \
-            -e API_VERSION=${env.BUILD_DATE} \
-            -e DATABASE_HOST=200.201.200.43 \
-            -e DATABASE_PORT=5000 \
-            ${env.IMAGE} &&
-            docker system prune -af
-            '
-            """
+    def environment = params.ENVIRONMENT.toLowerCase()
+
+    withVault(configuration: [
+            timeout: 60,
+            vaultCredentialId: 'vault-approle-jenkins',
+            vaultUrl: 'http://192.168.91.160:8200'
+        ], vaultSecrets: [
+            [
+                path: "secret/gprev-aon/${environment}",
+                engineVersion: 2,
+                secretValues: [
+                    [envVar: 'DB_HOST', vaultKey: 'db_host'],
+                    [envVar: 'DB_NAME', vaultKey: 'db_name'],
+                    [envVar: 'DB_USER', vaultKey: 'db_user'],
+                    [envVar: 'DB_PASSWORD', vaultKey: 'db_password']
+                ]
+            ]
+        ]) {
+            if(params.ENVIRONMENT == 'QA') {
+                sh '''
+                docker stop ${PROJECT_NAME} || true
+                docker rm ${PROJECT_NAME} || true
+                docker run -d --name ${PROJECT_NAME} \
+                ${PROJECT_NAME}
+                docker system prune -af
+                '''
+            } else {
+                sshagent(['aws-key-aon']) {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no ubuntu@15.229.180.137 '
+                    aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.REGISTRY} &&
+                    docker stop ${PROJECT_NAME} || true &&
+                    docker rm ${PROJECT_NAME} || true &&
+                    docker pull ${env.IMAGE} &&
+                    docker run -d --name ${PROJECT_NAME} \
+                    -e API_VERSION=${env.BUILD_DATE} \
+                    -e DATABASE_HOST=${DB_HOST} \
+                    -e DATABASE_NAME=${DB_NAME} \
+                    -e DATABASE_USER=${DB_USER} \
+                    -e DATABASE_PASSWORD=${DB_PASSWORD} \
+                    ${env.IMAGE} &&
+                    docker system prune -af
+                    '
+                    """
+                }
+            }
         }
-    }
 }

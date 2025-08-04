@@ -25,8 +25,8 @@ public class ArrecadacaoRowMapper implements RowMapper<Arrecadacao> {
                 .dataVencimento(Optional.ofNullable(rs.getDate("DATA_VENCIMENTO")).map(Date::toLocalDate).orElse(null))
                 .dataPagamento(Optional.ofNullable(rs.getDate("DATA_PAGAMENTO")).map(Date::toLocalDate).orElse(null))
                 .valorCalculado(BigDecimal.ZERO)
-                .valorRecebido(rs.getBigDecimal("VALOR_RECEBIDO"))
-                .valorFinal(rs.getBigDecimal("VALOR_FINAL"))
+                .valorRecebido(BigDecimal.ZERO)
+                .valorFinal(BigDecimal.ZERO)
                 .idIndice(rs.getLong("INDICE_ID"))
                 .movimentos(new ArrayList<>())
                 .build();

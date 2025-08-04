@@ -15,9 +15,11 @@ public interface ArrecadacaoCargaRepository extends CrudRepository<ArrecadacaoCa
     @Query(value = """
             select *
               from ARRECADACAO_CARGA
-             where CONTRIBUICAO_ID in (select b.ID
+             where PESSOA_PLANO_ID in (select pp.ID
                                          from CONTRIBUICAO b
                                          join PLANO_PESSOA_JURIDICA c on b.PLANO_ID = c.PLANO_ID
+                                         join VINCULO v on v.PJ_ID = c.PESSOA_JURIDICA_ID
+                                         join PESSOA_PLANO pp on pp.PESSOA_ID = v.PESSOA_ID
                                         where c.PESSOA_JURIDICA_ID = :idPessoaJuridica)
                and ANO_REFERENCIA = :anoReferencia
                and MES_REFERENCIA = :mesReferencia

@@ -73,11 +73,10 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
                 }
                 movimento.setValorCalculado(arrecadacaoMovimento.getValorCalculado());
                 arrecadacao.getMovimentos().add(movimento);
-                arrecadacao.somar(movimento);
             }
             recebidos.removeAll(recebidosAux);
             adicionaRecebidosNaoCalculado(mapArrecadacao, recebidos, movimentos);
-            salvarArrecadacoes(mapArrecadacao);
+            salvarArrecadacoes(mapArrecadacao, processamento);
             atualizarPlanoProcessamento(processamento);
         }
     }
@@ -95,7 +94,6 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
                 ArrecadacaoMovimento movimento = optMovimento.orElse(new ArrecadacaoMovimento(arrecadacao));
                 movimento.setValorRecebido(arrecadacao.getValorRecebido());
                 movimento.setValorFinal(arrecadacao.getValorRecebido());
-                mapArrecadacao.get(key).somar(movimento);
                 mapArrecadacao.get(key).getMovimentos().add(movimento);
             }
         }
@@ -143,7 +141,7 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
     }
 
     @Transactional
-    private void salvarArrecadacoes(Map<String, Arrecadacao> arrecadacoes) {
+    private void salvarArrecadacoes(Map<String, Arrecadacao> arrecadacoes, PlanoProcessamento processamento) {
         for (Map.Entry<String, Arrecadacao> longArrecadacaoEntry : arrecadacoes.entrySet()) {
             Arrecadacao arrecadacao = longArrecadacaoEntry.getValue();
             Arrecadacao arrecadacaoSalva = arrecadacaoRepository.save(arrecadacao);
@@ -152,6 +150,9 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
 
             arrecadacaoMovimentoRepository.saveAll(arrecadacao.getMovimentos());
         }
+
+        arrecadacaoRepository.atualizarValores(processamento.getIdPlano(),
+                processamento.getMesReferencia(), processamento.getAnoReferencia());
     }
 
 }

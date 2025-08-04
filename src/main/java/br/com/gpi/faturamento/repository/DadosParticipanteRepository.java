@@ -53,6 +53,7 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                       join VINCULO                  vin on vin.PESSOA_ID       = pp.PESSOA_ID
                                                     and vin.DATA_DEMISSAO      is null
                       JOIN PLANO_PESSOA_JURIDICA    ppj on ppj.PLANO_ID        = pla.ID
+                                                    and ppj.PESSOA_JURIDICA_ID = vin.PJ_ID
                       left join PESSOA_CONTRIBUICAO pc  on pc.CONTRIBUICAO_ID  = con.ID
                                                        and pp.ID               = pc.PESSOA_PLANO_ID
                                                        and :dataCompetencia between pc.DATA_INICIAL and ISNULL(pc.DATA_FINAL, :dataCompetencia)

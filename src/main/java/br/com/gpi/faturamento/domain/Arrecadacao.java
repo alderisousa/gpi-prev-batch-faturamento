@@ -1,6 +1,5 @@
 package br.com.gpi.faturamento.domain;
 
-import br.com.gpi.faturamento.utils.NumberUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +14,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Data
 @Table("ARRECADACAO")
@@ -70,15 +68,5 @@ public class Arrecadacao {
         this.idPerfilInvestimento = movimento.getIdPerfilInvestimento();
         this.idIndice = movimento.getIdIndiceArrecadacao();
     }
-
-    public void somar(ArrecadacaoMovimento movimento) {
-        this.valorCalculado = NumberUtils.getValorOrZero(this.valorCalculado)
-                .add(NumberUtils.getValorOrZero(movimento.getValorCalculado()));
-        this.valorRecebido = NumberUtils.getValorOrZero(this.valorRecebido)
-                .add(NumberUtils.getValorOrZero(movimento.getValorRecebido()));
-        this.valorFinal = NumberUtils.getValorOrZero(this.valorFinal)
-                .add(NumberUtils.getValorOrZero(movimento.getValorFinal()));
-    }
-
 
 }

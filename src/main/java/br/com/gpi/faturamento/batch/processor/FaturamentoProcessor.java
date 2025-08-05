@@ -40,7 +40,7 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
 
         List<DadosParticipante> dadosParticipantes = dadosParticipanteRepository.listarParticipantes(item.getIdPessoaJuridica(), item.getIdPlano(), dataCompetencia);
 
-        List<Distribuicao> distribuicoes = listarDistribuicao(dadosParticipantes);
+        List<Distribuicao> distribuicoes = listarDistribuicao(item, dataCompetencia);
 
         List<ArrecadacaoMovimento> faturamentos = new ArrayList<>();
         for (DadosParticipante dados : dadosParticipantes) {
@@ -68,9 +68,8 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
         return item;
     }
 
-    private List<Distribuicao> listarDistribuicao(List<DadosParticipante> dadosParticipantes) {
-        List<Long> idsPessoaContribuicao = dadosParticipantes.stream().map(DadosParticipante::getIdPessoaContribuicao).toList();
-        return distribuicaoRepository.findAllByIdPessoaContribuicaoIn(idsPessoaContribuicao);
+    private List<Distribuicao> listarDistribuicao(PlanoProcessamento item, LocalDate dataCompetencia) {
+        return distribuicaoRepository.listarDistribuicoes(item.getIdPessoaJuridica(), item.getIdPlano(), dataCompetencia);
     }
 
     private List<ArrecadacaoMovimento> distribuirInvestimento(

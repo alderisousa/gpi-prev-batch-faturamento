@@ -126,7 +126,7 @@ def deployApplication() {
                     docker stop ${PROJECT_NAME} || true &&
                     docker rm ${PROJECT_NAME} || true &&
                     docker pull ${env.IMAGE} &&
-                    docker run -d --name ${PROJECT_NAME} \
+                    docker run -d --name ${PROJECT_NAME} --restart unless-stopped \
                     -e API_VERSION=${env.BUILD_DATE} \
                     -e DATABASE_HOST=${DB_HOST} \
                     -e DATABASE_NAME=${DB_NAME} \

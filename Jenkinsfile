@@ -118,6 +118,17 @@ def deployApplication() {
                 ${PROJECT_NAME}
                 docker system prune -af
                 '''
+                sh """
+                docker stop ${PROJECT_NAME} || true
+                docker rm ${PROJECT_NAME} || true
+                docker run -d --name ${PROJECT_NAME} --restart unless-stopped \
+                -e DATABASE_HOST=\${DB_HOST} \
+                -e DATABASE_NAME=\${DB_NAME} \
+                -e DATABASE_USER=\${DB_USER} \
+                -e DATABASE_PASSWORD=\${DB_PASSWORD} \
+                ${PROJECT_NAME}
+                docker system prune -af
+                """
             } else {
                 sshagent(['aws-key-aon']) {
                     sh """

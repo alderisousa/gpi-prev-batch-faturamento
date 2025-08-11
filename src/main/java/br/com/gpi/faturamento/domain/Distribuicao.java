@@ -23,8 +23,8 @@ public class Distribuicao {
     private Long id;
     @Column("PESSOA_PLANO_ID")
     private Long idPessoaPlano;
-    @Column("PESSOA_CONTRIBUICAO_ID")
-    private Long idPessoaContribuicao;
+    @Column("CONTRIBUICAO_ID")
+    private Long idContribuicao;
     @Column("PERFIL_INVESTIMENTO_ID")
     private Long idPerfilInvestimento;
     @Column("PERCENTUAL_DISTRIBUICAO")

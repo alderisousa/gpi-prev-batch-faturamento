@@ -15,7 +15,7 @@ public class DistribuicaoRowMapper implements RowMapper<Distribuicao> {
         return Distribuicao.builder()
                 .id(rs.getLong("ID"))
                 .idPessoaPlano(rs.getLong("PESSOA_PLANO_ID"))
-                .idPessoaContribuicao(rs.getLong("PESSOA_CONTRIBUICAO_ID"))
+                .idContribuicao(rs.getLong("CONTRIBUICAO_ID"))
                 .idPerfilInvestimento(rs.getLong("PERFIL_INVESTIMENTO_ID"))
                 .percentualDistribuicao(rs.getBigDecimal("PERCENTUAL_DISTRIBUICAO"))
                 .dataInicio(Optional.ofNullable(rs.getDate("DATA_INICIO")).map(Date::toLocalDate).orElse(null))

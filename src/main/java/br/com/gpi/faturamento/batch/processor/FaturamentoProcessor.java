@@ -80,7 +80,7 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
 
         List<ArrecadacaoMovimento> faturamentos = new ArrayList<>();
         List<Distribuicao> distribuicoesPessoa = distribuicoes.stream()
-                .filter(d -> d.getIdPessoaContribuicao().equals(dados.getIdPessoaContribuicao())
+                .filter(d -> d.getIdContribuicao().equals(dados.getIdContribuicao())
                         && d.getIdPessoaPlano().equals(dados.getIdPessoaPlano())).toList();
 
         if ("S".equals(dados.getDistribuicaoFlag()) && !distribuicoesPessoa.isEmpty()) {

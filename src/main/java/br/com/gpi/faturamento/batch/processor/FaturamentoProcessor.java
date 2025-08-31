@@ -51,9 +51,14 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
             }
 
             if (isElegivel && dados.getNmRotinaCalculo() != null) {
-                BigDecimal valor = rotinaCalculoStrategyFactory
-                        .getStrategy(dados.getNmRotinaCalculo())
-                        .executar(faturamentos, dados);
+                BigDecimal valor;
+                if (dados.getQtdIndiceContribuicao() != null && dados.getQtdIndiceContribuicao().compareTo(BigDecimal.ZERO) > 0) {
+                    valor = dados.getQtdIndiceContribuicao();
+                } else {
+                    valor = rotinaCalculoStrategyFactory
+                            .getStrategy(dados.getNmRotinaCalculo())
+                            .executar(faturamentos, dados);
+                }
 
                 if (valor.compareTo(BigDecimal.ZERO) > 0) {
 

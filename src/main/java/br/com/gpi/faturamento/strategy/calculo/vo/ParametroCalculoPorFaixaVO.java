@@ -16,6 +16,7 @@ public class ParametroCalculoPorFaixaVO {
     private BigDecimal vlFaixaMin;
     private BigDecimal vlFaixaMax;
     private BigDecimal pctContribuicaoMax;
+    private BigDecimal vlMinimoContribuicao;
 
 }
 

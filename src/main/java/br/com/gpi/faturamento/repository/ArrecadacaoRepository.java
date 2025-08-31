@@ -50,4 +50,18 @@ public interface ArrecadacaoRepository extends CrudRepository<Arrecadacao, Long>
     void atualizarValores(@Param("idPlano") Long idPlano,
                           @Param("mesReferencia") String mesReferencia,
                           @Param("anoReferencia") String anoReferencia);
+
+    @Modifying
+    @Query(value = """
+            delete
+            from ARRECADACAO
+            where ID in (select d.ID
+                           from CONTRIBUICAO b
+                           join PLANO_PESSOA_JURIDICA c on b.PLANO_ID = c.PLANO_ID
+                           join ARRECADACAO d on d.CONTRIBUICAO_ID = b.ID
+                          where d.ANO_COMPETENCIA = :anoReferencia
+                            and d.MES_COMPETENCIA = :mesReferencia
+                            and c.PESSOA_JURIDICA_ID = :idPessoaJuridica)
+            """, rowMapperClass = ArrecadacaoRowMapper.class)
+    void removerPorAnoMesReferencia(Long idPessoaJuridica, String mesReferencia, String anoReferencia);
 }

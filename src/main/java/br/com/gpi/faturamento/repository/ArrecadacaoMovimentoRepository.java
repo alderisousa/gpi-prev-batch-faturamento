@@ -34,14 +34,14 @@ public interface ArrecadacaoMovimentoRepository extends CrudRepository<Arrecadac
     @Query(value = """
              delete
                from ARRECADACAO_MOVIMENTO
-              where ARRECADACAO_ID in (
-                 select d.ID
-                   from CONTRIBUICAO b
-                   join PLANO_PESSOA_JURIDICA c on b.PLANO_ID = c.PLANO_ID
-                   join ARRECADACAO d on d.CONTRIBUICAO_ID = b.ID
-                  where d.ANO_COMPETENCIA = :anoReferencia
-                    and d.MES_COMPETENCIA = :mesReferencia
-                    and c.PESSOA_JURIDICA_ID = :idPessoaJuridica)
+              where PESSOA_PLANO_ID in (
+                  select a.ID
+                   from PESSOA_PLANO a
+                   join PESSOA b on b.ID  = a.PESSOA_ID
+                   join VINCULO c on c.PESSOA_ID = b.ID
+                  where c.PJ_ID = :idPessoaJuridica)
+                  and ANO_REFERENCIA = :anoReferencia
+                  and MES_REFERENCIA = :mesReferencia
             """)
     void removerPorAnoMesReferencia(Long idPessoaJuridica, String mesReferencia, String anoReferencia);
 }

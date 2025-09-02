@@ -34,12 +34,13 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
 
         for (PlanoProcessamento processamento : chunk) {
 
-            arrecadacaoMovimentoRepository.removerPorAnoMesReferencia(
+            List<Arrecadacao> arrecadacoes = arrecadacaoRepository.listar(
                     processamento.getIdPessoaJuridica(),
                     processamento.getMesReferencia(),
                     processamento.getAnoReferencia());
+            arrecadacaoRepository.saveAll(arrecadacoes);
 
-            arrecadacaoRepository.removerPorAnoMesReferencia(
+            arrecadacaoMovimentoRepository.removerPorAnoMesReferencia(
                     processamento.getIdPessoaJuridica(),
                     processamento.getMesReferencia(),
                     processamento.getAnoReferencia());
@@ -51,7 +52,6 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
 
             List<ArrecadacaoCarga> recebidosAux = new ArrayList<>();
 
-            List<Arrecadacao> arrecadacoes = new ArrayList<>();
             List<ArrecadacaoMovimento> movimentos = new ArrayList<>();
 
             Map<String, Arrecadacao> mapArrecadacao = new HashMap<>();
@@ -70,6 +70,8 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
                     recebidosAux.add(recebido.get());
                     movimento.setValorRecebido(recebido.get().getValorRecebido());
                     movimento.setValorFinal(recebido.get().getValorRecebido());
+                } else {
+                    movimento.setValorFinal(arrecadacaoMovimento.getValorCalculado());
                 }
                 movimento.setValorCalculado(arrecadacaoMovimento.getValorCalculado());
                 arrecadacao.getMovimentos().add(movimento);

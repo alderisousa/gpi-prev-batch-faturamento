@@ -8,6 +8,7 @@ import br.com.gpi.faturamento.repository.DadosParticipanteRepository;
 import br.com.gpi.faturamento.repository.DistribuicaoRepository;
 import br.com.gpi.faturamento.strategy.calculo.RotinaCalculoStrategyFactory;
 import br.com.gpi.faturamento.strategy.elegibilidade.RotinaElegibilidadeStrategy;
+import br.com.gpi.faturamento.utils.DateUtils;
 import br.com.gpi.faturamento.utils.NumberUtils;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +35,9 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
     private DistribuicaoRepository distribuicaoRepository;
 
     @Override
-    public PlanoProcessamento process(PlanoProcessamento item) throws Exception {
+    public PlanoProcessamento process(PlanoProcessamento item) {
 
-        LocalDate dataCompetencia = LocalDate.of(Integer.parseInt(item.getAnoReferencia()), Integer.parseInt(item.getMesReferencia()), 1);
+        LocalDate dataCompetencia = DateUtils.getCompetencia(item.getAnoReferencia(), item.getMesReferencia());
 
         List<DadosParticipante> dadosParticipantes = dadosParticipanteRepository.listarParticipantes(item.getIdPessoaJuridica(), item.getIdPlano(), dataCompetencia);
 

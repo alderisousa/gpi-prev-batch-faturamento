@@ -16,6 +16,7 @@ public class DadosParticipante {
     private Long idPessoaPlano;
     private Long idPessoaContribuicao;
     private Long idIndice;
+    private Long idSituacaoVinculo;
     private LocalDate dataOpcao;
     private LocalDate dataNascimento;
     private BigDecimal salarioContribuicao;

@@ -7,7 +7,7 @@ import br.com.gpi.faturamento.domain.PlanoProcessamento;
 import br.com.gpi.faturamento.repository.DadosParticipanteRepository;
 import br.com.gpi.faturamento.repository.DistribuicaoRepository;
 import br.com.gpi.faturamento.strategy.calculo.RotinaCalculoStrategyFactory;
-import br.com.gpi.faturamento.strategy.elegibilidade.RotinaElegibilidadeStrategy;
+import br.com.gpi.faturamento.strategy.elegibilidade.RotinaElegibilidadeStrategyFactory;
 import br.com.gpi.faturamento.utils.DateUtils;
 import br.com.gpi.faturamento.utils.NumberUtils;
 import org.springframework.batch.item.ItemProcessor;
@@ -29,7 +29,7 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
     private RotinaCalculoStrategyFactory rotinaCalculoStrategyFactory;
 
     @Autowired
-    private RotinaElegibilidadeStrategy rotinaElegibilidadeStrategy;
+    private RotinaElegibilidadeStrategyFactory rotinaElegibilidadeFactoryStrategy;
 
     @Autowired
     private DistribuicaoRepository distribuicaoRepository;
@@ -48,7 +48,9 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
 
             boolean isElegivel = true;
             if (dados.getNmRotinaElegibilidade() != null) {
-                isElegivel = rotinaElegibilidadeStrategy.executar(dados);
+                isElegivel = rotinaElegibilidadeFactoryStrategy
+                        .getStrategy(dados.getNmRotinaElegibilidade())
+                        .executar(dados);
             }
 
             if (isElegivel && dados.getNmRotinaCalculo() != null) {

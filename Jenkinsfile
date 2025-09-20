@@ -4,16 +4,30 @@ pipeline {
         jdk 'jdk21'
     }
 
-    parameters {
-        string(name: 'BRANCH', defaultValue: 'main', description: 'Informe a branch para checkout.')
-        choice(name: 'ENVIRONMENT', choices: ['QA', 'PROD'], description: 'Selecione o ambiente para deploy.')
-    }
-
     environment {
         PROJECT_NAME = 'gpi-prev-batch-faturamento'
         GIT_REPOSITORY = "git@github.com:og-gpi-prev/gpi-prev-batch-faturamento.git"
         AWS_REGION = 'us-east-1'
         REGISTRY = "117890058519.dkr.ecr.us-east-1.amazonaws.com"
+        DOCKER_BUILDKIT = '1'
+    }
+
+    parameters {
+        gitParameter(
+            name: 'BRANCH',
+            type: 'PT_BRANCH',
+            defaultValue: 'main',
+            description: 'Selecione a branch para checkout',
+            branch: '',
+            branchFilter: 'origin/(.*)',
+            tagFilter: '*',
+            sortMode: 'DESCENDING_SMART',
+            selectedValue: 'DEFAULT',
+            quickFilterEnabled: true,
+            useRepository: env.GIT_REPOSITORY,
+            listSize: '10'
+        )
+        choice(name: 'ENVIRONMENT', choices: ['QA', 'PROD'], description: 'Selecione o ambiente para deploy.')
     }
 
     stages {

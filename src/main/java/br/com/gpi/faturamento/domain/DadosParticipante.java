@@ -25,6 +25,7 @@ public class DadosParticipante {
     private Long idTipoContribuicao;
     private Long idAtribuicaoPagamento;
     private Long idRotinaElegibilidade;
+    private Long idPerfilInvestimento;
     private String nmRotinaElegibilidade;
     private String jsonParametroElegibilidade;
     private Long idRotinaCalculo;

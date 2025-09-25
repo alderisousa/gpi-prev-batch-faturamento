@@ -38,6 +38,7 @@ public class DadosParticipanteRowMapper implements RowMapper<DadosParticipante> 
                 .idPessoaPlano(rs.getLong("PESSOA_PLANO_ID"))
                 .idPessoaContribuicao(rs.getLong("PESSOA_CONTRIBUICAO_ID"))
                 .idSituacaoVinculo(rs.getLong("SITUACAO_VINCULO_ID"))
+                .idPerfilInvestimento(rs.getLong("PERFIL_INVESTIMENTO_ID"))
                 .build();
     }
 }

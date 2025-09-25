@@ -110,7 +110,6 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
         return movimentos.stream()
                 .filter(m -> m.getIdContribuicao().equals(key.getIdContribuicao())
                     && m.getIdPessoaPlano().equals(key.getIdPessoaPlano())
-                    && Optional.ofNullable(m.getIdPerfilInvestimento()).equals(Optional.ofNullable(key.getIdPerfilInvestimento()))
                 )
                 .findFirst();
     }
@@ -119,7 +118,6 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
         return movimentos.stream()
                 .filter(m -> m.getIdContribuicao().equals(arrecadacaoMovimento.getIdContribuicao())
                         && m.getIdPessoaPlano().equals(arrecadacaoMovimento.getIdPessoaPlano())
-                        && Optional.ofNullable(m.getIdPerfilInvestimento()).equals(Optional.ofNullable(arrecadacaoMovimento.getIdPerfilInvestimento()))
                 )
                 .findFirst();
     }

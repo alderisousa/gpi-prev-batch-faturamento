@@ -106,6 +106,7 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
             arrecadacao.setValorCalculado(valorContribuicao);
             arrecadacao.setAnoReferencia(item.getAnoReferencia());
             arrecadacao.setMesReferencia(item.getMesReferencia());
+            arrecadacao.setIdPerfilInvestimento(dados.getIdPerfilInvestimento());
             faturamentos.add(arrecadacao);
         }
 

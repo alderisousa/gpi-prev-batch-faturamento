@@ -11,5 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class ParametroFaixaSalarioVO {
 
-    private List<FaixaPercentualVO> faixas;
+    private List<FaixaTempoPlanoVO> faixas;
 }

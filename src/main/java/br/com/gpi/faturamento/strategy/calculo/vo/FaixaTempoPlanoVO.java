@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FaixaPercentualVO {
+public class FaixaTempoPlanoVO {
     private Long tempoPlanoMinimo;
     private Long tempoPlanoMaximo;
     private BigDecimal percentual;

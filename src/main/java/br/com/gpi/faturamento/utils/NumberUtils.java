@@ -18,7 +18,7 @@ public class NumberUtils {
         return Arrays.stream(valores).reduce(BigDecimal::min).orElseThrow();
     }
 
-    public static BigDecimal percentualParaFaixa(BigDecimal valor) {
+    public static BigDecimal percentualParaTaxa(BigDecimal valor) {
         if (valor == null) {
             return BigDecimal.ZERO;
         }

@@ -2,7 +2,7 @@ package br.com.gpi.faturamento.strategy.calculo;
 
 import br.com.gpi.faturamento.domain.ArrecadacaoMovimento;
 import br.com.gpi.faturamento.domain.DadosParticipante;
-import br.com.gpi.faturamento.strategy.calculo.vo.FaixaPercentualVO;
+import br.com.gpi.faturamento.strategy.calculo.vo.FaixaTempoPlanoVO;
 import br.com.gpi.faturamento.strategy.calculo.vo.ParametroFaixaSalarioVO;
 import br.com.gpi.faturamento.utils.DateUtils;
 import br.com.gpi.faturamento.utils.NumberUtils;
@@ -32,12 +32,12 @@ public class CalcularPorFaixaSalarioStrategy implements RotinaCalculoStrategy {
 
     private BigDecimal getPercentual(DadosParticipante dados, ParametroFaixaSalarioVO parametro) {
         if (parametro.getFaixas() != null && !parametro.getFaixas().isEmpty()) {
-            return NumberUtils.percentualParaFaixa(getPercentualPorFaixa(dados, parametro.getFaixas()));
+            return NumberUtils.percentualParaTaxa(getPercentualPorFaixa(dados, parametro.getFaixas()));
         }
-        return NumberUtils.percentualParaFaixa(dados.getPctContribuicao());
+        return NumberUtils.percentualParaTaxa(dados.getPctContribuicao());
     }
 
-    private BigDecimal getPercentualPorFaixa(DadosParticipante dados, List<FaixaPercentualVO> faixas) {
+    private BigDecimal getPercentualPorFaixa(DadosParticipante dados, List<FaixaTempoPlanoVO> faixas) {
         long tempoPlano = DateUtils.calculaAnoAteHoje(dados.getDataOpcao());
         for (var faixa: faixas) {
           if (tempoPlano >= faixa.getTempoPlanoMinimo() && tempoPlano < faixa.getTempoPlanoMaximo()) {

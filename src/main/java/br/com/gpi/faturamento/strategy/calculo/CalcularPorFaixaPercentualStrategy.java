@@ -24,7 +24,7 @@ public class CalcularPorFaixaPercentualStrategy implements RotinaCalculoStrategy
 
             BigDecimal resultadoCalculo = NumberUtils.max(BigDecimal.ZERO,
                     NumberUtils.multiplicarValor(valorCalculo,
-                            NumberUtils.percentualParaFaixa(pctContribuicao)));
+                            NumberUtils.percentualParaTaxa(pctContribuicao)));
             return parametro.getVlMinimoContribuicao() != null
                     && parametro.getVlMinimoContribuicao().compareTo(resultadoCalculo) > 0
                     && pctContribuicao != null && BigDecimal.ZERO.compareTo(pctContribuicao) < 0

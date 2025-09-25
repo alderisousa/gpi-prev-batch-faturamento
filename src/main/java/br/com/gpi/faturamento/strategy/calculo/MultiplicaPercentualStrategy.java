@@ -3,7 +3,6 @@ package br.com.gpi.faturamento.strategy.calculo;
 import br.com.gpi.faturamento.domain.ArrecadacaoMovimento;
 import br.com.gpi.faturamento.domain.DadosParticipante;
 import br.com.gpi.faturamento.strategy.calculo.vo.ParametroCalculoMultiplicacaoVO;
-import br.com.gpi.faturamento.strategy.calculo.vo.ParametroCalculoPorFaixaVO;
 import br.com.gpi.faturamento.utils.NumberUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
@@ -23,7 +22,7 @@ public class MultiplicaPercentualStrategy implements RotinaCalculoStrategy {
 
             return NumberUtils.max(BigDecimal.ZERO,
                     NumberUtils.multiplicarValor(valorCalculo,
-                            NumberUtils.percentualParaFaixa(dados.getPctContribuicao())));
+                            NumberUtils.percentualParaTaxa(dados.getPctContribuicao())));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }

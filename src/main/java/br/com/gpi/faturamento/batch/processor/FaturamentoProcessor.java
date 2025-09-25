@@ -95,7 +95,7 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
             for (var distribuicao : distribuicoesPessoa) {
                 ArrecadacaoMovimento arrecadacao = new ArrecadacaoMovimento(dados);
                 arrecadacao.setValorCalculado(NumberUtils.multiplicarValor(valorContribuicao,
-                        NumberUtils.percentualParaFaixa(distribuicao.getPercentualDistribuicao())));
+                        NumberUtils.percentualParaTaxa(distribuicao.getPercentualDistribuicao())));
                 arrecadacao.setAnoReferencia(item.getAnoReferencia());
                 arrecadacao.setMesReferencia(item.getMesReferencia());
                 arrecadacao.setIdPerfilInvestimento(distribuicao.getIdPerfilInvestimento());

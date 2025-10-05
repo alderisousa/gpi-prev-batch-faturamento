@@ -27,6 +27,8 @@ public class PlanoProcessamento {
     private String anoReferencia;
     @Column("MES_REFERENCIA")
     private String mesReferencia;
+    @Column("DS_LOGIN")
+    private String login;
     @Column("DT_CADASTRO")
     private LocalDateTime dataCadastro;
     @Column("DT_PROCESSAMENTO")

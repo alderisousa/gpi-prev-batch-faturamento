@@ -2,6 +2,7 @@ package br.com.gpi.faturamento.batch.writer;
 
 import br.com.gpi.faturamento.domain.*;
 import br.com.gpi.faturamento.repository.ArrecadacaoCargaRepository;
+import br.com.gpi.faturamento.repository.ArrecadacaoMovimentoHistoricoRepository;
 import br.com.gpi.faturamento.repository.ArrecadacaoMovimentoRepository;
 import br.com.gpi.faturamento.repository.ArrecadacaoRepository;
 import br.com.gpi.faturamento.service.PlanoProcessamentoService;
@@ -28,6 +29,9 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
 
     @Autowired
     private ArrecadacaoCargaRepository arrecadacaoCargaRepository;
+
+    @Autowired
+    private ArrecadacaoMovimentoHistoricoRepository arrecadacaoMovimentoHistoricoRepository;
 
     @Override
     public void write(Chunk<? extends PlanoProcessamento> chunk) throws Exception {
@@ -148,7 +152,13 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
 
             arrecadacao.getMovimentos().forEach(m -> m.setIdArrecadacao(arrecadacaoSalva.getId()));
 
+            List<ArrecadacaoMovimentoHistorico> historicos = arrecadacao.getMovimentos().stream()
+                    .map(ArrecadacaoMovimentoHistorico::new)
+                    .peek(h -> h.setLogin(processamento.getLogin()))
+                    .toList();
+
             arrecadacaoMovimentoRepository.saveAll(arrecadacao.getMovimentos());
+            arrecadacaoMovimentoHistoricoRepository.saveAll(historicos);
         }
 
         arrecadacaoRepository.atualizarValores(processamento.getIdPlano(),

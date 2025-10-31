@@ -23,7 +23,7 @@ public class CalcularPorFaixaSalarioStrategy implements RotinaCalculoStrategy {
             ParametroFaixaSalarioVO parametro = mapper.readValue(dados.getJsonParametroCalculo(), ParametroFaixaSalarioVO.class);
 
             BigDecimal percentual = getPercentual(dados, parametro);
-            return NumberUtils.multiplicarValor(dados.getSalarioContribuicao(), percentual);
+            return NumberUtils.multiplicarValor(dados.getSalarioContribuicao(), percentual, parametro.getQtDecimais());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }

@@ -16,6 +16,7 @@ public class DadosParticipante {
     private Long idPessoaPlano;
     private Long idPessoaContribuicao;
     private Long idIndice;
+    private Long idVinculo;
     private Long idSituacaoVinculo;
     private LocalDate dataOpcao;
     private LocalDate dataNascimento;
@@ -36,6 +37,7 @@ public class DadosParticipante {
     private String jsonParametroRetorno;
     private String distribuicaoFlag;
     private String contribuicaoFlag;
+    private String salarioParticipacaoFlag;
     private BigDecimal qtdIndiceContribuicao;
     private BigDecimal pctContribuicao;
 

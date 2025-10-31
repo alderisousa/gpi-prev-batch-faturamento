@@ -38,7 +38,7 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
                     .map(ArrecadacaoMovimento::getValorCalculado)
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
-            BigDecimal contribuicao = NumberUtils.multiplicarValor(somaContribuicao, getPercentual(dados, parametro));
+            BigDecimal contribuicao = NumberUtils.multiplicarValor(somaContribuicao, getPercentual(dados, parametro), parametro.getQtDecimais());
             return aplicarFaixaContribuicao(contribuicao, parametro);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
@@ -53,7 +53,7 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
                 if (auxiliar.compareTo(contribuicao) < 0) {
                     contribuicaoTotal = contribuicaoTotal.add(
                             NumberUtils.multiplicarValor(NumberUtils.min(faixa.getVlFaixaMax(), contribuicao).subtract(auxiliar),
-                                    NumberUtils.percentualParaTaxa(faixa.getPercentual())));
+                                    NumberUtils.percentualParaTaxa(faixa.getPercentual()), parametro.getQtDecimais()));
                     auxiliar = faixa.getVlFaixaMax();
                 }
             }

@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 public class ParametroCalculoMultiplicacaoVO {
 
     private BigDecimal qtdUR;
+    private Integer qtDecimais;
 
 }
 

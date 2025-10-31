@@ -22,4 +22,8 @@ public class DateUtils {
                 .plusMonths(1)
                 .minusDays(1);
     }
+
+    public static LocalDate getCompetenciaSalario(String ano, String mes) {
+        return LocalDate.of(Integer.parseInt(ano), Integer.parseInt(mes), 1);
+    }
 }

@@ -12,4 +12,5 @@ import java.util.List;
 public class ParametroFaixaSalarioVO {
 
     private List<FaixaTempoPlanoVO> faixas;
+    private Integer qtDecimais;
 }

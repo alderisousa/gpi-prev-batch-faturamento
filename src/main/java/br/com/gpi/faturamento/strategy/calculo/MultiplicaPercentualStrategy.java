@@ -22,14 +22,14 @@ public class MultiplicaPercentualStrategy implements RotinaCalculoStrategy {
 
             return NumberUtils.max(BigDecimal.ZERO,
                     NumberUtils.multiplicarValor(valorCalculo,
-                            NumberUtils.percentualParaTaxa(dados.getPctContribuicao())));
+                            NumberUtils.percentualParaTaxa(dados.getPctContribuicao()), parametro.getQtDecimais()));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
     }
 
     private BigDecimal getValorCalculo(DadosParticipante dados, ParametroCalculoMultiplicacaoVO parametro) {
-        return NumberUtils.multiplicarValor(parametro.getQtdUR(), dados.getValorUR());
+        return NumberUtils.multiplicarValor(parametro.getQtdUR(), dados.getValorUR(), parametro.getQtDecimais());
     }
 
 }

@@ -6,4 +6,6 @@ public interface RotinaElegibilidadeStrategy {
 
     boolean executar(DadosParticipante dados);
 
+    boolean executar(DadosParticipante dados, String parametros);
+
 }

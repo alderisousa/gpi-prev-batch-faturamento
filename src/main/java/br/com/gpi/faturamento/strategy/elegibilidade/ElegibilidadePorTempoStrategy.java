@@ -12,9 +12,14 @@ public class ElegibilidadePorTempoStrategy implements RotinaElegibilidadeStrateg
 
     @Override
     public boolean executar(DadosParticipante dados) {
+        return executar(dados, dados.getJsonParametroElegibilidade());
+    }
+
+    @Override
+    public boolean executar(DadosParticipante dados, String parametros) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            ParametroElegibilidadeTempoVO parametro = mapper.readValue(dados.getJsonParametroElegibilidade(), ParametroElegibilidadeTempoVO.class);
+            ParametroElegibilidadeTempoVO parametro = mapper.readValue(parametros, ParametroElegibilidadeTempoVO.class);
 
             int idade = DateUtils.calculaAnoAteHoje(dados.getDataNascimento());
             int tempoEmpresa = DateUtils.calculaAnoAteHoje(dados.getDataAdmissao());

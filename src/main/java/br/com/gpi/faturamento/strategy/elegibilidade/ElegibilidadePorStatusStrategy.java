@@ -12,9 +12,14 @@ public class ElegibilidadePorStatusStrategy implements RotinaElegibilidadeStrate
 
     @Override
     public boolean executar(DadosParticipante dados) {
+        return executar(dados, dados.getJsonParametroElegibilidade());
+    }
+
+    @Override
+    public boolean executar(DadosParticipante dados, String parametros) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            ListaParametroElegibilidadeStatusVO parametro = mapper.readValue(dados.getJsonParametroElegibilidade(), ListaParametroElegibilidadeStatusVO.class);
+            ListaParametroElegibilidadeStatusVO parametro = mapper.readValue(parametros, ListaParametroElegibilidadeStatusVO.class);
 
             boolean isValido = true;
             if (parametro.getStatus() != null) {

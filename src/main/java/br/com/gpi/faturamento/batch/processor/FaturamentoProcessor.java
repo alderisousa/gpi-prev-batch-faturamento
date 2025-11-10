@@ -1,13 +1,12 @@
 package br.com.gpi.faturamento.batch.processor;
 
-import br.com.gpi.faturamento.domain.ArrecadacaoMovimento;
-import br.com.gpi.faturamento.domain.DadosParticipante;
-import br.com.gpi.faturamento.domain.Distribuicao;
-import br.com.gpi.faturamento.domain.PlanoProcessamento;
+import br.com.gpi.faturamento.domain.*;
 import br.com.gpi.faturamento.repository.DadosParticipanteRepository;
 import br.com.gpi.faturamento.repository.DistribuicaoRepository;
+import br.com.gpi.faturamento.repository.HistoricoSalarialRepository;
 import br.com.gpi.faturamento.strategy.calculo.RotinaCalculoStrategyFactory;
-import br.com.gpi.faturamento.strategy.elegibilidade.RotinaElegibilidadeStrategy;
+import br.com.gpi.faturamento.strategy.elegibilidade.RotinaElegibilidadeStrategyFactory;
+import br.com.gpi.faturamento.utils.DateUtils;
 import br.com.gpi.faturamento.utils.NumberUtils;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +16,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, PlanoProcessamento> {
 
+    public static final String FLAG_SIM = "S";
     @Autowired
     private DadosParticipanteRepository dadosParticipanteRepository;
 
@@ -28,32 +29,47 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
     private RotinaCalculoStrategyFactory rotinaCalculoStrategyFactory;
 
     @Autowired
-    private RotinaElegibilidadeStrategy rotinaElegibilidadeStrategy;
+    private RotinaElegibilidadeStrategyFactory rotinaElegibilidadeFactoryStrategy;
 
     @Autowired
     private DistribuicaoRepository distribuicaoRepository;
 
+    @Autowired
+    private HistoricoSalarialRepository historicoSalarialRepository;
+
     @Override
-    public PlanoProcessamento process(PlanoProcessamento item) throws Exception {
+    public PlanoProcessamento process(PlanoProcessamento item) {
 
-        LocalDate dataCompetencia = LocalDate.of(Integer.parseInt(item.getAnoReferencia()), Integer.parseInt(item.getMesReferencia()), 1);
+        LocalDate dataCompetencia = DateUtils.getCompetencia(item.getAnoReferencia(), item.getMesReferencia());
+        LocalDate dataCompetenciaSalario = DateUtils.getCompetenciaSalario(item.getAnoReferencia(), item.getMesReferencia());
 
-        List<DadosParticipante> dadosParticipantes = dadosParticipanteRepository.listarParticipantes(item.getIdPessoaJuridica(), item.getIdPlano(), dataCompetencia);
+        var dadosParticipantes = dadosParticipanteRepository.listarParticipantes(item.getIdPessoaJuridica(), item.getIdPlano(), dataCompetencia);
+
+        var salarios = historicoSalarialRepository.listarSalarios(item.getIdPessoaJuridica(), dataCompetenciaSalario);
 
         List<Distribuicao> distribuicoes = listarDistribuicao(item, dataCompetencia);
 
         List<ArrecadacaoMovimento> faturamentos = new ArrayList<>();
         for (DadosParticipante dados : dadosParticipantes) {
 
+            atualizarSalario(dados, salarios);
+
             boolean isElegivel = true;
             if (dados.getNmRotinaElegibilidade() != null) {
-                isElegivel = rotinaElegibilidadeStrategy.executar(dados);
+                isElegivel = rotinaElegibilidadeFactoryStrategy
+                        .getStrategy(dados.getNmRotinaElegibilidade())
+                        .executar(dados);
             }
 
             if (isElegivel && dados.getNmRotinaCalculo() != null) {
-                BigDecimal valor = rotinaCalculoStrategyFactory
-                        .getStrategy(dados.getNmRotinaCalculo())
-                        .executar(faturamentos, dados);
+                BigDecimal valor;
+                if (dados.getQtdIndiceContribuicao() != null && dados.getQtdIndiceContribuicao().compareTo(BigDecimal.ZERO) > 0) {
+                    valor = dados.getQtdIndiceContribuicao();
+                } else {
+                    valor = rotinaCalculoStrategyFactory
+                            .getStrategy(dados.getNmRotinaCalculo())
+                            .executar(faturamentos, dados);
+                }
 
                 if (valor.compareTo(BigDecimal.ZERO) > 0) {
 
@@ -66,6 +82,14 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
 
         item.setMovimentos(faturamentos);
         return item;
+    }
+
+    private void atualizarSalario(DadosParticipante dados, List<HistoricoSalarial> salarios) {
+        Optional<HistoricoSalarial> optSalario = salarios.stream().filter(s -> s.getIdVinculo().equals(dados.getIdVinculo())).findFirst();
+
+        optSalario.ifPresent(historicoSalarial -> dados.setSalarioContribuicao(
+                FLAG_SIM.equals(dados.getSalarioParticipacaoFlag()) ?
+                    historicoSalarial.getVrSalarioParticipacao() : historicoSalarial.getVrSalario()));
     }
 
     private List<Distribuicao> listarDistribuicao(PlanoProcessamento item, LocalDate dataCompetencia) {
@@ -87,7 +111,7 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
             for (var distribuicao : distribuicoesPessoa) {
                 ArrecadacaoMovimento arrecadacao = new ArrecadacaoMovimento(dados);
                 arrecadacao.setValorCalculado(NumberUtils.multiplicarValor(valorContribuicao,
-                        NumberUtils.percentualParaFaixa(distribuicao.getPercentualDistribuicao())));
+                        NumberUtils.percentualParaTaxa(distribuicao.getPercentualDistribuicao())));
                 arrecadacao.setAnoReferencia(item.getAnoReferencia());
                 arrecadacao.setMesReferencia(item.getMesReferencia());
                 arrecadacao.setIdPerfilInvestimento(distribuicao.getIdPerfilInvestimento());
@@ -98,6 +122,7 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
             arrecadacao.setValorCalculado(valorContribuicao);
             arrecadacao.setAnoReferencia(item.getAnoReferencia());
             arrecadacao.setMesReferencia(item.getMesReferencia());
+            arrecadacao.setIdPerfilInvestimento(dados.getIdPerfilInvestimento());
             faturamentos.add(arrecadacao);
         }
 

@@ -2,6 +2,7 @@ package br.com.gpi.faturamento.repository;
 
 import br.com.gpi.faturamento.data.mapper.ArrecadacaoMovimentoRowMapper;
 import br.com.gpi.faturamento.domain.ArrecadacaoMovimento;
+import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -29,4 +30,18 @@ public interface ArrecadacaoMovimentoRepository extends CrudRepository<Arrecadac
                                       @Param("mesReferencia") String mesReferencia,
                                       @Param("anoReferencia") String anoReferencia);
 
+    @Modifying
+    @Query(value = """
+             delete
+               from ARRECADACAO_MOVIMENTO
+              where PESSOA_PLANO_ID in (
+                  select a.ID
+                   from PESSOA_PLANO a
+                   join PESSOA b on b.ID  = a.PESSOA_ID
+                   join VINCULO c on c.PESSOA_ID = b.ID
+                  where c.PJ_ID = :idPessoaJuridica)
+                  and ANO_REFERENCIA = :anoReferencia
+                  and MES_REFERENCIA = :mesReferencia
+            """)
+    void removerPorAnoMesReferencia(Long idPessoaJuridica, String mesReferencia, String anoReferencia);
 }

@@ -22,9 +22,15 @@ public class CalcularPorFaixaPercentualStrategy implements RotinaCalculoStrategy
 
             BigDecimal pctContribuicao = getPercentualContribuicao(dados, parametro);
 
-            return NumberUtils.max(BigDecimal.ZERO,
+            BigDecimal resultadoCalculo = NumberUtils.max(BigDecimal.ZERO,
                     NumberUtils.multiplicarValor(valorCalculo,
-                            NumberUtils.percentualParaFaixa(pctContribuicao)));
+                            NumberUtils.percentualParaTaxa(pctContribuicao),
+                            parametro.getQtDecimais()));
+            return parametro.getVlMinimoContribuicao() != null
+                    && parametro.getVlMinimoContribuicao().compareTo(resultadoCalculo) > 0
+                    && pctContribuicao != null && BigDecimal.ZERO.compareTo(pctContribuicao) < 0
+                        ? parametro.getVlMinimoContribuicao()
+                        : resultadoCalculo;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
@@ -51,7 +57,7 @@ public class CalcularPorFaixaPercentualStrategy implements RotinaCalculoStrategy
         if (parametro.getVlFaixaMax() != null) {
             valorMaximo = parametro.getVlFaixaMax();
         } else {
-            valorMaximo = NumberUtils.multiplicarValor(parametro.getQtdURMax(), dados.getValorUR());
+            valorMaximo = NumberUtils.multiplicarValor(parametro.getQtdURMax(), dados.getValorUR(), parametro.getQtDecimais());
         }
         return valorMaximo;
     }
@@ -61,7 +67,7 @@ public class CalcularPorFaixaPercentualStrategy implements RotinaCalculoStrategy
         if (parametro.getVlFaixaMin() != null) {
             valorMinimo = parametro.getVlFaixaMin();
         } else {
-            valorMinimo = NumberUtils.multiplicarValor(parametro.getQtdURMin(), dados.getValorUR());
+            valorMinimo = NumberUtils.multiplicarValor(parametro.getQtdURMin(), dados.getValorUR(), parametro.getQtDecimais());
         }
         return valorMinimo;
     }

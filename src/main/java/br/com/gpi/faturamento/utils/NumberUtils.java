@@ -10,15 +10,22 @@ import java.util.Optional;
 @UtilityClass
 public class NumberUtils {
 
+    public static final int DECIMAL_VALOR = 2;
+
+    public static BigDecimal multiplicarValor(BigDecimal m1, BigDecimal m2, Integer qtdDecimais) {
+        int scale = qtdDecimais == null ? DECIMAL_VALOR : qtdDecimais;
+        return m1.multiply(m2).setScale(scale, RoundingMode.HALF_DOWN);
+    }
+
     public static BigDecimal multiplicarValor(BigDecimal m1, BigDecimal m2) {
-        return m1.multiply(m2).setScale(2, RoundingMode.HALF_DOWN);
+        return multiplicarValor(m1, m2, DECIMAL_VALOR);
     }
 
     public static BigDecimal min(BigDecimal... valores) {
         return Arrays.stream(valores).reduce(BigDecimal::min).orElseThrow();
     }
 
-    public static BigDecimal percentualParaFaixa(BigDecimal valor) {
+    public static BigDecimal percentualParaTaxa(BigDecimal valor) {
         if (valor == null) {
             return BigDecimal.ZERO;
         }

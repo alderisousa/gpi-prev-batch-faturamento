@@ -2,6 +2,7 @@ package br.com.gpi.faturamento.batch.writer;
 
 import br.com.gpi.faturamento.domain.*;
 import br.com.gpi.faturamento.repository.ArrecadacaoCargaRepository;
+import br.com.gpi.faturamento.repository.ArrecadacaoMovimentoHistoricoRepository;
 import br.com.gpi.faturamento.repository.ArrecadacaoMovimentoRepository;
 import br.com.gpi.faturamento.repository.ArrecadacaoRepository;
 import br.com.gpi.faturamento.service.PlanoProcessamentoService;
@@ -29,6 +30,9 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
     @Autowired
     private ArrecadacaoCargaRepository arrecadacaoCargaRepository;
 
+    @Autowired
+    private ArrecadacaoMovimentoHistoricoRepository arrecadacaoMovimentoHistoricoRepository;
+
     @Override
     public void write(Chunk<? extends PlanoProcessamento> chunk) throws Exception {
 
@@ -38,8 +42,9 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
                     processamento.getIdPessoaJuridica(),
                     processamento.getMesReferencia(),
                     processamento.getAnoReferencia());
+            arrecadacaoRepository.saveAll(arrecadacoes);
 
-            List<ArrecadacaoMovimento> movimentos = arrecadacaoMovimentoRepository.listar(
+            arrecadacaoMovimentoRepository.removerPorAnoMesReferencia(
                     processamento.getIdPessoaJuridica(),
                     processamento.getMesReferencia(),
                     processamento.getAnoReferencia());
@@ -51,8 +56,7 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
 
             List<ArrecadacaoCarga> recebidosAux = new ArrayList<>();
 
-            arrecadacaoRepository.saveAll(arrecadacoes);
-            arrecadacaoMovimentoRepository.saveAll(movimentos);
+            List<ArrecadacaoMovimento> movimentos = new ArrayList<>();
 
             Map<String, Arrecadacao> mapArrecadacao = new HashMap<>();
             for (var arrecadacaoMovimento : processamento.getMovimentos()) {
@@ -70,6 +74,8 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
                     recebidosAux.add(recebido.get());
                     movimento.setValorRecebido(recebido.get().getValorRecebido());
                     movimento.setValorFinal(recebido.get().getValorRecebido());
+                } else {
+                    movimento.setValorFinal(arrecadacaoMovimento.getValorCalculado());
                 }
                 movimento.setValorCalculado(arrecadacaoMovimento.getValorCalculado());
                 arrecadacao.getMovimentos().add(movimento);
@@ -108,7 +114,6 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
         return movimentos.stream()
                 .filter(m -> m.getIdContribuicao().equals(key.getIdContribuicao())
                     && m.getIdPessoaPlano().equals(key.getIdPessoaPlano())
-                    && Optional.ofNullable(m.getIdPerfilInvestimento()).equals(Optional.ofNullable(key.getIdPerfilInvestimento()))
                 )
                 .findFirst();
     }
@@ -117,7 +122,6 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
         return movimentos.stream()
                 .filter(m -> m.getIdContribuicao().equals(arrecadacaoMovimento.getIdContribuicao())
                         && m.getIdPessoaPlano().equals(arrecadacaoMovimento.getIdPessoaPlano())
-                        && Optional.ofNullable(m.getIdPerfilInvestimento()).equals(Optional.ofNullable(arrecadacaoMovimento.getIdPerfilInvestimento()))
                 )
                 .findFirst();
     }
@@ -148,7 +152,13 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
 
             arrecadacao.getMovimentos().forEach(m -> m.setIdArrecadacao(arrecadacaoSalva.getId()));
 
+            List<ArrecadacaoMovimentoHistorico> historicos = arrecadacao.getMovimentos().stream()
+                    .map(ArrecadacaoMovimentoHistorico::new)
+                    .peek(h -> h.setLogin(processamento.getLogin()))
+                    .toList();
+
             arrecadacaoMovimentoRepository.saveAll(arrecadacao.getMovimentos());
+            arrecadacaoMovimentoHistoricoRepository.saveAll(historicos);
         }
 
         arrecadacaoRepository.atualizarValores(processamento.getIdPlano(),

@@ -16,6 +16,8 @@ public class DadosParticipante {
     private Long idPessoaPlano;
     private Long idPessoaContribuicao;
     private Long idIndice;
+    private Long idVinculo;
+    private Long idSituacaoVinculo;
     private LocalDate dataOpcao;
     private LocalDate dataNascimento;
     private BigDecimal salarioContribuicao;
@@ -24,6 +26,7 @@ public class DadosParticipante {
     private Long idTipoContribuicao;
     private Long idAtribuicaoPagamento;
     private Long idRotinaElegibilidade;
+    private Long idPerfilInvestimento;
     private String nmRotinaElegibilidade;
     private String jsonParametroElegibilidade;
     private Long idRotinaCalculo;
@@ -34,6 +37,7 @@ public class DadosParticipante {
     private String jsonParametroRetorno;
     private String distribuicaoFlag;
     private String contribuicaoFlag;
+    private String salarioParticipacaoFlag;
     private BigDecimal qtdIndiceContribuicao;
     private BigDecimal pctContribuicao;
 

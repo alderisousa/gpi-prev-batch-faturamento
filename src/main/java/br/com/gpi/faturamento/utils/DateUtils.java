@@ -16,4 +16,14 @@ public class DateUtils {
         Period periodo = Period.between(data, LocalDate.now());
         return periodo.getYears();
     }
+
+    public static LocalDate getCompetencia(String ano, String mes) {
+        return LocalDate.of(Integer.parseInt(ano), Integer.parseInt(mes), 1)
+                .plusMonths(1)
+                .minusDays(1);
+    }
+
+    public static LocalDate getCompetenciaSalario(String ano, String mes) {
+        return LocalDate.of(Integer.parseInt(ano), Integer.parseInt(mes), 1);
+    }
 }

@@ -20,8 +20,10 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                            con.ID CONTRIBUICAO_ID,
                            pp.DATA_OPCAO,
                            pp.PESSOA_ID,
+                           vin.ID VINCULO_ID,
                            vin.SALARIO,
                            vin.DATA_ADMISSAO,
+                           vin.SITUACAO_VINCULO_ID,
                            ur.VALOR_UR_INICIAL VALOR_UR,
                            con.TIPO_CONTRIBUICAO_ID,
                            pgc.ROTINA_ELEGIBILIDADE_ID,
@@ -41,17 +43,20 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                            pp.ID PESSOA_PLANO_ID,
                            pc.ID PESSOA_CONTRIBUICAO_ID,
                            con.ATRIBUICAO_PAGAMENTO_ID,
-                           con.ORDEM
+                           con.ORDEM,
+                           pp.PERFIL_INVESTIMENTO_ID,
+                           con.FL_SALARIO_PARTICIPACAO SALARIO_PARTICIPACAO_FLAG
                       from CONTRIBUICAO             con
                       join PLANO_GRUPO_CONTRIBUICAO pgc on con.ID              = pgc.CONTRIBUICAO_ID
                       join PESSOA_PLANO_GRUPO       ppg on ppg.PLANO_GRUPO_ID  = pgc.PLANO_GRUPO_ID
                       join PLANO_GRUPO              pg  on pg.ID               = ppg.PLANO_GRUPO_ID
                       join PESSOA_PLANO             pp  on ppg.PESSOA_PLANO_ID = pp.ID
+                                                       and pp.SITUACAO_PESSOA_PLANO_ID = 1
                                                        and (con.OPCAO_MODALIDADE_ID = pp.OPCAO_MODALIDADE_ID or con.ATRIBUICAO_PAGAMENTO_ID = 2)
                       join PLANO                    pla on pla.ID              = con.PLANO_ID
                       join PESSOA                   pes on pes.ID              = pp.PESSOA_ID
                       join VINCULO                  vin on vin.PESSOA_ID       = pp.PESSOA_ID
-                                                    and vin.DATA_DEMISSAO      is null
+                                                    and (vin.DATA_DEMISSAO     is null or vin.DATA_DEMISSAO > :dataCompetencia)
                       JOIN PLANO_PESSOA_JURIDICA    ppj on ppj.PLANO_ID        = pla.ID
                                                     and ppj.PESSOA_JURIDICA_ID = vin.PJ_ID
                       left join PESSOA_CONTRIBUICAO pc  on pc.CONTRIBUICAO_ID  = con.ID

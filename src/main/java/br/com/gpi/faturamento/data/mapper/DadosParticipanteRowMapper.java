@@ -18,6 +18,7 @@ public class DadosParticipanteRowMapper implements RowMapper<DadosParticipante> 
                 .idContribuicao(rs.getLong("CONTRIBUICAO_ID"))
                 .idPessoa(rs.getLong("PESSOA_ID"))
                 .idIndice(rs.getLong("INDICE_ID"))
+                .idVinculo(rs.getLong("VINCULO_ID"))
                 .salarioContribuicao(rs.getBigDecimal("SALARIO"))
                 .dataAdmissao(Optional.ofNullable(rs.getDate("DATA_ADMISSAO")).map(Date::toLocalDate).orElse(null))
                 .valorUR(rs.getBigDecimal("VALOR_UR"))
@@ -35,8 +36,11 @@ public class DadosParticipanteRowMapper implements RowMapper<DadosParticipante> 
                 .pctContribuicao(rs.getBigDecimal("PERCENTUAL"))
                 .dataNascimento(Optional.ofNullable(rs.getDate("DATA_NASCIMENTO")).map(Date::toLocalDate).orElse(null))
                 .distribuicaoFlag(rs.getString("DISTRIBUICAO_FLAG"))
+                .salarioParticipacaoFlag(rs.getString("SALARIO_PARTICIPACAO_FLAG"))
                 .idPessoaPlano(rs.getLong("PESSOA_PLANO_ID"))
                 .idPessoaContribuicao(rs.getLong("PESSOA_CONTRIBUICAO_ID"))
+                .idSituacaoVinculo(rs.getLong("SITUACAO_VINCULO_ID"))
+                .idPerfilInvestimento(rs.getLong("PERFIL_INVESTIMENTO_ID"))
                 .build();
     }
 }

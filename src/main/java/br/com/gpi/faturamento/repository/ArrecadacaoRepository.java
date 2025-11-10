@@ -50,4 +50,5 @@ public interface ArrecadacaoRepository extends CrudRepository<Arrecadacao, Long>
     void atualizarValores(@Param("idPlano") Long idPlano,
                           @Param("mesReferencia") String mesReferencia,
                           @Param("anoReferencia") String anoReferencia);
+
 }

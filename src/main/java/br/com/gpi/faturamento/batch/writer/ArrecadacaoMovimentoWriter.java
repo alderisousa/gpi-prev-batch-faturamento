@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Component
@@ -73,9 +74,9 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
                 if (recebido.isPresent()) {
                     recebidosAux.add(recebido.get());
                     movimento.setValorRecebido(recebido.get().getValorRecebido());
-                    movimento.setValorFinal(recebido.get().getValorRecebido());
+                    setValorFinal(movimento, recebido.get().getValorRecebido());
                 } else {
-                    movimento.setValorFinal(arrecadacaoMovimento.getValorCalculado());
+                    setValorFinal(movimento, arrecadacaoMovimento.getValorCalculado());
                 }
                 movimento.setValorCalculado(arrecadacaoMovimento.getValorCalculado());
                 arrecadacao.getMovimentos().add(movimento);
@@ -84,6 +85,12 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
             adicionaRecebidosNaoCalculado(mapArrecadacao, recebidos, movimentos);
             salvarArrecadacoes(mapArrecadacao, processamento);
             atualizarPlanoProcessamento(processamento);
+        }
+    }
+
+    private void setValorFinal(ArrecadacaoMovimento movimento, BigDecimal valor) {
+        if ("S".equals(movimento.getContribuicaoFinalFlag())) {
+            movimento.setValorFinal(valor);
         }
     }
 

@@ -48,7 +48,7 @@ public class ArrecadacaoMovimento extends ArrecadacaoMovimentoKey {
     private Long idTipoContribuicao;
 
     @Transient
-    private String contribuicaoFlag;
+    private String contribuicaoFinalFlag;
 
     public ArrecadacaoMovimento(DadosParticipante dados) {
         this.idContribuicao = dados.getIdContribuicao();
@@ -56,7 +56,7 @@ public class ArrecadacaoMovimento extends ArrecadacaoMovimentoKey {
         this.idTipoContribuicao = dados.getIdTipoContribuicao();
         this.idIndiceArrecadacao = dados.getIdIndice();
         this.idIndiceRecebido = dados.getIdIndice();
-        this.contribuicaoFlag = dados.getContribuicaoFlag();
+        this.contribuicaoFinalFlag = dados.getIdContribuicaoPai() == null || dados.getIdContribuicaoPai().equals(0L) ? "S" : "N";
         this.valorCalculado = BigDecimal.ZERO;
         this.valorRecebido = BigDecimal.ZERO;
         this.valorFinal = BigDecimal.ZERO;

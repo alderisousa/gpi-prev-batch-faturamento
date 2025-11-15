@@ -11,6 +11,7 @@ import java.time.LocalDate;
 public class DadosParticipante {
 
     private Long idContribuicao;
+    private Long idContribuicaoPai;
     private String nmContribuicao;
     private Long idPessoa;
     private Long idPessoaPlano;
@@ -36,7 +37,6 @@ public class DadosParticipante {
     private String nmRotinaRetorno;
     private String jsonParametroRetorno;
     private String distribuicaoFlag;
-    private String contribuicaoFlag;
     private String salarioParticipacaoFlag;
     private BigDecimal qtdIndiceContribuicao;
     private BigDecimal pctContribuicao;

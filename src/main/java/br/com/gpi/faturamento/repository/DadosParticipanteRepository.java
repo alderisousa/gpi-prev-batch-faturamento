@@ -45,7 +45,8 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                            con.ATRIBUICAO_PAGAMENTO_ID,
                            con.ORDEM,
                            pp.PERFIL_INVESTIMENTO_ID,
-                           con.FL_SALARIO_PARTICIPACAO SALARIO_PARTICIPACAO_FLAG
+                           con.FL_SALARIO_PARTICIPACAO SALARIO_PARTICIPACAO_FLAG,
+                           con.CONTRIBUICAO_ID CONTRIBUICAO_PAI_ID
                       from CONTRIBUICAO             con
                       join PLANO_GRUPO_CONTRIBUICAO pgc on con.ID              = pgc.CONTRIBUICAO_ID
                       join PESSOA_PLANO_GRUPO       ppg on ppg.PLANO_GRUPO_ID  = pgc.PLANO_GRUPO_ID

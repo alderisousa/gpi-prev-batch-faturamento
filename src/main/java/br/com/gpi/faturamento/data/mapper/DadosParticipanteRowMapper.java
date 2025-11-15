@@ -16,6 +16,7 @@ public class DadosParticipanteRowMapper implements RowMapper<DadosParticipante> 
                 .dataOpcao(Optional.ofNullable(rs.getDate("DATA_OPCAO")).map(Date::toLocalDate).orElse(null))
                 .nmContribuicao(rs.getString("CONTRIBUICAO_DESCRICAO"))
                 .idContribuicao(rs.getLong("CONTRIBUICAO_ID"))
+                .idContribuicaoPai(rs.getLong("CONTRIBUICAO_PAI_ID"))
                 .idPessoa(rs.getLong("PESSOA_ID"))
                 .idIndice(rs.getLong("INDICE_ID"))
                 .idVinculo(rs.getLong("VINCULO_ID"))

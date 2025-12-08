@@ -21,7 +21,8 @@ import java.util.Optional;
 @Component
 public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, PlanoProcessamento> {
 
-    public static final String FLAG_SIM = "S";
+    private static final String FLAG_SIM = "S";
+
     @Autowired
     private DadosParticipanteRepository dadosParticipanteRepository;
 
@@ -73,15 +74,30 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
 
                 if (valor.compareTo(BigDecimal.ZERO) > 0) {
 
-                    faturamentos.addAll(distribuirInvestimento(distribuicoes, item, dados, valor));
+                    var valorCom13 = calcular13(valor, item.getMesReferencia(), dados);
 
-                    System.out.println("Pessoa " + dados.getIdPessoa() + " - " + dados.getNmContribuicao() + ": " + valor);
+                    faturamentos.addAll(distribuirInvestimento(distribuicoes, item, dados, valorCom13));
+
+                    System.out.println("Pessoa " + dados.getIdPessoa() + " - " + dados.getNmContribuicao() + ": " + valorCom13);
                 }
             }
         }
 
         item.setMovimentos(faturamentos);
         return item;
+    }
+
+    private BigDecimal calcular13(BigDecimal valor, String mesReferencia, DadosParticipante dados) {
+
+        if (mesReferencia.equals(dados.getMes13())
+                && dados.getPct13() != null
+                && FLAG_SIM.equals(dados.getIncide13Flag())
+                && FLAG_SIM.equals(dados.getDobra13Flag())) {
+            var valor13 = NumberUtils.multiplicarValor(valor, NumberUtils.percentualParaTaxa(dados.getPct13()));
+            return valor.add(valor13);
+        }
+
+        return valor;
     }
 
     private void atualizarSalario(DadosParticipante dados, List<HistoricoSalarial> salarios) {

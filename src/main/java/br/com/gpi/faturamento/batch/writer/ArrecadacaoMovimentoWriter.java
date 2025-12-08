@@ -18,6 +18,7 @@ import java.util.*;
 @Component
 public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento> {
 
+    private static final String FLAG_SIM = "S";
 
     @Autowired
     private PlanoProcessamentoService planoProcessamentoService;
@@ -89,7 +90,7 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
     }
 
     private void setValorFinal(ArrecadacaoMovimento movimento, BigDecimal valor) {
-        if ("S".equals(movimento.getContribuicaoFinalFlag())) {
+        if (FLAG_SIM.equals(movimento.getContribuicaoFinalFlag())) {
             movimento.setValorFinal(valor);
         }
     }

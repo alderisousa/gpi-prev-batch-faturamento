@@ -43,7 +43,7 @@ public class DadosParticipanteRowMapper implements RowMapper<DadosParticipante> 
                 .idSituacaoVinculo(rs.getLong("SITUACAO_VINCULO_ID"))
                 .idPerfilInvestimento(rs.getLong("PERFIL_INVESTIMENTO_ID"))
                 .mes13(rs.getString("MES_DECIMO_TERCEIRO"))
-                .pct13(rs.getBigDecimal("MULTIPLICADOR"))
+                .pct13(rs.getBigDecimal("PERCENTUAL_ADICIONAL"))
                 .incide13Flag(rs.getString("INCIDE_13"))
                 .dobra13Flag(rs.getString("DOBRA_13"))
                 .build();

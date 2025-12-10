@@ -49,7 +49,7 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                            con.CONTRIBUICAO_ID CONTRIBUICAO_PAI_ID,
                            pla.MES_DECIMO_TERCEIRO,
                            con.INCIDE_13,
-                           con.MULTIPLICADOR,
+                           con.PERCENTUAL_ADICIONAL,
                            case when pc.DOBRA_13 = 'N' then 'N' else 'S' end DOBRA_13
                       from CONTRIBUICAO             con
                       join PLANO_GRUPO_CONTRIBUICAO pgc on con.ID              = pgc.CONTRIBUICAO_ID

@@ -40,5 +40,9 @@ public class DadosParticipante {
     private String salarioParticipacaoFlag;
     private BigDecimal qtdIndiceContribuicao;
     private BigDecimal pctContribuicao;
+    private String mes13;
+    private String incide13Flag;
+    private String dobra13Flag;
+    private BigDecimal pct13;
 
 }

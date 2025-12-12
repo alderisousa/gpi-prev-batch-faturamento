@@ -46,14 +46,17 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                            con.ORDEM,
                            pp.PERFIL_INVESTIMENTO_ID,
                            con.FL_SALARIO_PARTICIPACAO SALARIO_PARTICIPACAO_FLAG,
-                           con.CONTRIBUICAO_ID CONTRIBUICAO_PAI_ID
+                           con.CONTRIBUICAO_ID CONTRIBUICAO_PAI_ID,
+                           pla.MES_DECIMO_TERCEIRO,
+                           con.INCIDE_13,
+                           con.PERCENTUAL_ADICIONAL,
+                           case when pc.DOBRA_13 = 'N' then 'N' else 'S' end DOBRA_13
                       from CONTRIBUICAO             con
                       join PLANO_GRUPO_CONTRIBUICAO pgc on con.ID              = pgc.CONTRIBUICAO_ID
                       join PESSOA_PLANO_GRUPO       ppg on ppg.PLANO_GRUPO_ID  = pgc.PLANO_GRUPO_ID
                       join PLANO_GRUPO              pg  on pg.ID               = ppg.PLANO_GRUPO_ID
                       join PESSOA_PLANO             pp  on ppg.PESSOA_PLANO_ID = pp.ID
                                                        and pp.SITUACAO_PESSOA_PLANO_ID = 1
-                                                       and (con.OPCAO_MODALIDADE_ID = pp.OPCAO_MODALIDADE_ID or con.ATRIBUICAO_PAGAMENTO_ID = 2)
                       join PLANO                    pla on pla.ID              = con.PLANO_ID
                       join PESSOA                   pes on pes.ID              = pp.PESSOA_ID
                       join VINCULO                  vin on vin.PESSOA_ID       = pp.PESSOA_ID
@@ -72,6 +75,7 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                        and ppj.PESSOA_JURIDICA_ID = :idPessoaJuridica
                        and (:idPlano is null or con.PLANO_ID = :idPlano)
                        and :dataCompetencia between con.DATA_INICIAL  and ISNULL(con.DATA_FINAL, :dataCompetencia)
+                       and (coalesce(con.CONTRIB_13, 'N') != 'S' or (con.CONTRIB_13 = 'S' and MONTH(:dataCompetencia) = pla.MES_DECIMO_TERCEIRO))
                    ) vw
              order by vw.PESSOA_ID, vw.ATRIBUICAO_PAGAMENTO_ID, case when vw.ORDEM is null then 9999 else vw.ORDEM end
            """, rowMapperClass = DadosParticipanteRowMapper.class)

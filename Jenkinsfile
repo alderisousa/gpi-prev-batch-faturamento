@@ -153,10 +153,10 @@ def deployApplication() {
                     docker pull ${env.IMAGE} &&
                     docker run -d --name ${PROJECT_NAME} --restart unless-stopped \
                     -e API_VERSION=${env.BUILD_DATE} \
-                    -e DATABASE_HOST=${DB_HOST} \
-                    -e DATABASE_NAME=${DB_NAME} \
-                    -e DATABASE_USER=${DB_USER} \
-                    -e DATABASE_PASSWORD=${DB_PASSWORD} \
+                    -e DATABASE_HOST=\${DB_HOST} \
+                    -e DATABASE_NAME=\${DB_NAME} \
+                    -e DATABASE_USER=\${DB_USER} \
+                    -e DATABASE_PASSWORD=\${DB_PASSWORD} \
                     ${env.IMAGE} &&
                     docker system prune -af
                     '

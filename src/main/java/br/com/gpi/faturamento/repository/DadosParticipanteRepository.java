@@ -58,6 +58,7 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                       join PLANO_GRUPO              pg  on pg.ID               = ppg.PLANO_GRUPO_ID
                       join PESSOA_PLANO             pp  on ppg.PESSOA_PLANO_ID = pp.ID
                                                        and pp.SITUACAO_PESSOA_PLANO_ID = 1
+                                                       and (pgc.PERCENTUAL is null or (con.OPCAO_MODALIDADE_ID = pp.OPCAO_MODALIDADE_ID or con.ATRIBUICAO_PAGAMENTO_ID = 2))
                       join PLANO                    pla on pla.ID              = con.PLANO_ID
                       join PESSOA                   pes on pes.ID              = pp.PESSOA_ID
                       join VINCULO                  vin on vin.PESSOA_ID       = pp.PESSOA_ID

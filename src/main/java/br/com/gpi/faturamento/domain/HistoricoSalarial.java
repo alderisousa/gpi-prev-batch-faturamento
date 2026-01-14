@@ -29,4 +29,6 @@ public class HistoricoSalarial {
     private Long idVinculo;
     @Column("SALARIO")
     private BigDecimal vrSalario;
+    @Column("SALARIO_TREZE")
+    private BigDecimal vrSalario13;
 }

@@ -103,9 +103,17 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
     private void atualizarSalario(DadosParticipante dados, List<HistoricoSalarial> salarios) {
         Optional<HistoricoSalarial> optSalario = salarios.stream().filter(s -> s.getIdVinculo().equals(dados.getIdVinculo())).findFirst();
 
-        optSalario.ifPresent(historicoSalarial -> dados.setSalarioContribuicao(
-                FLAG_SIM.equals(dados.getSalarioParticipacaoFlag()) ?
-                    historicoSalarial.getVrSalarioParticipacao() : historicoSalarial.getVrSalario()));
+        optSalario.ifPresent(historicoSalarial -> {
+            BigDecimal salario;
+            if (FLAG_SIM.equals(dados.getContrib13Flag()) && historicoSalarial.getVrSalario13() != null)
+                salario = historicoSalarial.getVrSalario13();
+            else if (FLAG_SIM.equals(dados.getSalarioParticipacaoFlag()))
+                salario = historicoSalarial.getVrSalarioParticipacao();
+            else
+                salario = historicoSalarial.getVrSalario();
+
+            dados.setSalarioContribuicao(salario);
+        });
     }
 
     private List<Distribuicao> listarDistribuicao(PlanoProcessamento item, LocalDate dataCompetencia) {

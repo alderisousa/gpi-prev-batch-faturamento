@@ -50,7 +50,8 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                            pla.MES_DECIMO_TERCEIRO,
                            con.INCIDE_13,
                            con.PERCENTUAL_ADICIONAL,
-                           case when pc.DOBRA_13 = 'N' then 'N' else 'S' end DOBRA_13
+                           case when pc.DOBRA_13 = 'N' then 'N' else 'S' end DOBRA_13,
+                           coalesce(con.CONTRIB_13, 'N') CONTRIB_13
                       from CONTRIBUICAO             con
                       join PLANO_GRUPO_CONTRIBUICAO pgc on con.ID              = pgc.CONTRIBUICAO_ID
                       join PESSOA_PLANO_GRUPO       ppg on ppg.PLANO_GRUPO_ID  = pgc.PLANO_GRUPO_ID

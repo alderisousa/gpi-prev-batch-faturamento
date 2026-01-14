@@ -46,6 +46,7 @@ public class DadosParticipanteRowMapper implements RowMapper<DadosParticipante> 
                 .pct13(rs.getBigDecimal("PERCENTUAL_ADICIONAL"))
                 .incide13Flag(rs.getString("INCIDE_13"))
                 .dobra13Flag(rs.getString("DOBRA_13"))
+                .contrib13Flag(rs.getString("CONTRIB_13"))
                 .build();
     }
 }

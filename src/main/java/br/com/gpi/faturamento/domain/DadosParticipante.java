@@ -43,6 +43,7 @@ public class DadosParticipante {
     private String mes13;
     private String incide13Flag;
     private String dobra13Flag;
+    private String contrib13Flag;
     private BigDecimal pct13;
 
 }

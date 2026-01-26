@@ -19,6 +19,7 @@ public class CalcularPorFaixaPercentualStrategy implements RotinaCalculoStrategy
             ObjectMapper mapper = new ObjectMapper();
             ParametroCalculoPorFaixaVO parametro = mapper.readValue(dados.getJsonParametroCalculo(), ParametroCalculoPorFaixaVO.class);
             BigDecimal valorCalculo = getValorCalculo(dados, parametro);
+            BigDecimal valorMinimoContribuicao = dados.getValorMinimo() != null ? dados.getValorMinimo() : parametro.getVlMinimoContribuicao();
 
             BigDecimal pctContribuicao = getPercentualContribuicao(dados, parametro);
 
@@ -26,11 +27,9 @@ public class CalcularPorFaixaPercentualStrategy implements RotinaCalculoStrategy
                     NumberUtils.multiplicarValor(valorCalculo,
                             NumberUtils.percentualParaTaxa(pctContribuicao),
                             parametro.getQtDecimais()));
-            return parametro.getVlMinimoContribuicao() != null
-                    && parametro.getVlMinimoContribuicao().compareTo(resultadoCalculo) > 0
+            return valorMinimoContribuicao != null && valorMinimoContribuicao.compareTo(resultadoCalculo) > 0
                     && pctContribuicao != null && BigDecimal.ZERO.compareTo(pctContribuicao) < 0
-                        ? parametro.getVlMinimoContribuicao()
-                        : resultadoCalculo;
+                        ? valorMinimoContribuicao : resultadoCalculo;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }

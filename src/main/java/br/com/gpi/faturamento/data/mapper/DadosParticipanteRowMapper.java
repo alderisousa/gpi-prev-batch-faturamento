@@ -47,6 +47,7 @@ public class DadosParticipanteRowMapper implements RowMapper<DadosParticipante> 
                 .incide13Flag(rs.getString("INCIDE_13"))
                 .dobra13Flag(rs.getString("DOBRA_13"))
                 .contrib13Flag(rs.getString("CONTRIB_13"))
+                .valorMinimo(rs.getBigDecimal("VALOR_MINIMO"))
                 .build();
     }
 }

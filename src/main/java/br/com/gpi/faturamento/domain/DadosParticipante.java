@@ -45,5 +45,6 @@ public class DadosParticipante {
     private String dobra13Flag;
     private String contrib13Flag;
     private BigDecimal pct13;
+    private BigDecimal valorMinimo;
 
 }

@@ -2,8 +2,11 @@ package br.com.gpi.faturamento.strategy.calculo;
 
 import br.com.gpi.faturamento.domain.ArrecadacaoMovimento;
 import br.com.gpi.faturamento.domain.DadosParticipante;
+import br.com.gpi.faturamento.strategy.calculo.vo.FaixaTempoPlanoVO;
 import br.com.gpi.faturamento.strategy.calculo.vo.FiltroParametroSomarContribuicaoVO;
+import br.com.gpi.faturamento.strategy.calculo.vo.ParametroFaixaSalarioVO;
 import br.com.gpi.faturamento.strategy.calculo.vo.ParametroSomarContribuicaoVO;
+import br.com.gpi.faturamento.utils.DateUtils;
 import br.com.gpi.faturamento.utils.NumberUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
@@ -39,13 +42,13 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
             BigDecimal contribuicao = NumberUtils.multiplicarValor(somaContribuicao, getPercentual(dados, parametro), parametro.getQtDecimais());
-            return aplicarFaixaContribuicao(contribuicao, parametro);
+            return aplicarFaixaContribuicao(contribuicao, parametro, dados);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
     }
 
-    private BigDecimal aplicarFaixaContribuicao(BigDecimal contribuicao, ParametroSomarContribuicaoVO parametro) {
+    private BigDecimal aplicarFaixaContribuicao(BigDecimal contribuicao, ParametroSomarContribuicaoVO parametro, DadosParticipante dados) {
         if (parametro.getFaixasContribuicoes() != null && !parametro.getFaixasContribuicoes().isEmpty()) {
             BigDecimal contribuicaoTotal = BigDecimal.ZERO;
             BigDecimal auxiliar = BigDecimal.ZERO;
@@ -58,6 +61,9 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
                 }
             }
             return contribuicaoTotal;
+        } else if (parametro.getFaixasTempoPlano() != null && !parametro.getFaixasTempoPlano().isEmpty()) {
+            BigDecimal percentual = getPercentualPorFaixa(dados, parametro.getFaixasTempoPlano());
+            return NumberUtils.multiplicarValor(contribuicao, percentual);
         }
         return contribuicao;
     }
@@ -127,6 +133,16 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
             return NumberUtils.percentualParaTaxa(dados.getPctContribuicao());
         }
         return BigDecimal.ONE;
+    }
+
+    private BigDecimal getPercentualPorFaixa(DadosParticipante dados, List<FaixaTempoPlanoVO> faixas) {
+        long tempoPlano = DateUtils.calculaAnoAteHoje(dados.getDataOpcao());
+        for (var faixa: faixas) {
+            if (tempoPlano >= faixa.getTempoPlanoMinimo() && tempoPlano < faixa.getTempoPlanoMaximo()) {
+                return NumberUtils.percentualParaTaxa(faixa.getPercentual());
+            }
+        }
+        return NumberUtils.percentualParaTaxa(BigDecimal.ONE);
     }
 
 }

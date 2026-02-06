@@ -136,7 +136,7 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
     }
 
     private BigDecimal getPercentualPorFaixa(DadosParticipante dados, List<FaixaTempoPlanoVO> faixas) {
-        long tempoPlano = DateUtils.calculaAnoAteHoje(dados.getDataOpcao());
+        long tempoPlano = DateUtils.calculaAno(dados.getDataOpcao(), dados.getDataCompetencia());
         for (var faixa: faixas) {
             if (tempoPlano >= faixa.getTempoPlanoMinimo() && tempoPlano < faixa.getTempoPlanoMaximo()) {
                 return NumberUtils.percentualParaTaxa(faixa.getPercentual());

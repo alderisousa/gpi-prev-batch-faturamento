@@ -21,6 +21,7 @@ public class DadosParticipante {
     private Long idSituacaoVinculo;
     private LocalDate dataOpcao;
     private LocalDate dataNascimento;
+    private LocalDate dataCompetencia;
     private BigDecimal salarioContribuicao;
     private LocalDate dataAdmissao;
     private BigDecimal valorUR;

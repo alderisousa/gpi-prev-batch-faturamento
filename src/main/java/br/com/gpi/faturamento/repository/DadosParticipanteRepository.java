@@ -18,7 +18,7 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
               from (select distinct
                            con.DESCRICAO CONTRIBUICAO_DESCRICAO,
                            con.ID CONTRIBUICAO_ID,
-                           pp.DATA_OPCAO,
+                           coalesce(pp.DATA_ADESAO, pp.DATA_OPCAO) DATA_OPCAO,
                            pp.PESSOA_ID,
                            vin.ID VINCULO_ID,
                            vin.SALARIO,

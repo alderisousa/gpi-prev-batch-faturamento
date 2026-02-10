@@ -42,10 +42,18 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
             BigDecimal contribuicao = NumberUtils.multiplicarValor(somaContribuicao, getPercentual(dados, parametro), parametro.getQtDecimais());
-            return aplicarFaixaContribuicao(contribuicao, parametro, dados);
+            BigDecimal contribuicaoFinal = aplicarFaixaContribuicao(contribuicao, parametro, dados);
+            return aplicarRegraValorMaximo(contribuicaoFinal, parametro.getVlMaximoContribuicao());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
+    }
+
+    private BigDecimal aplicarRegraValorMaximo(BigDecimal contribuicaoFinal, BigDecimal vlMaximoContribuicao) {
+        if (vlMaximoContribuicao == null || vlMaximoContribuicao.compareTo(contribuicaoFinal) > 0) {
+            return contribuicaoFinal;
+        }
+        return vlMaximoContribuicao;
     }
 
     private BigDecimal aplicarFaixaContribuicao(BigDecimal contribuicao, ParametroSomarContribuicaoVO parametro, DadosParticipante dados) {

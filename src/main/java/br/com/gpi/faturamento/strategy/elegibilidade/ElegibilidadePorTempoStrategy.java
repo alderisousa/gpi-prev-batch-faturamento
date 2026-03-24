@@ -21,13 +21,24 @@ public class ElegibilidadePorTempoStrategy implements RotinaElegibilidadeStrateg
             ObjectMapper mapper = new ObjectMapper();
             ParametroElegibilidadeTempoVO parametro = mapper.readValue(parametros, ParametroElegibilidadeTempoVO.class);
 
-            int idade = DateUtils.calculaAnoAteHoje(dados.getDataNascimento());
-            int tempoEmpresa = DateUtils.calculaAnoAteHoje(dados.getDataAdmissao());
+            int idade = DateUtils.calculaAno(dados.getDataNascimento(), dados.getDataCompetencia());
+            int tempoEmpresa = DateUtils.calculaAno(dados.getDataAdmissao(), dados.getDataCompetencia());
+            int tempoPlano = DateUtils.calculaAno(dados.getDataOpcao(), dados.getDataCompetencia());
 
-            return NumberUtils.between(idade, parametro.getIdadeMinima(), parametro.getIdadeMaxima())
-                    || NumberUtils.between(tempoEmpresa, parametro.getTempoEmpresaMinimo(), parametro.getTempoEmpresaMaximo());
+            var isIdade = isValido(idade, parametro.getIdadeMinima(), parametro.getIdadeMaxima());
+            var isTempoEmpresa = isValido(tempoEmpresa, parametro.getTempoEmpresaMinimo(), parametro.getTempoEmpresaMaximo());
+            var isTempoPlano = isValido(tempoPlano, parametro.getTempoPlanoMinimo(), parametro.getTempoPlanoMaximo());
+
+            return isIdade || isTempoEmpresa || isTempoPlano;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
+    }
+
+    private boolean isValido(int tempo, Long minimo, Long maximo) {
+        if (minimo == null || maximo == null)
+            return true;
+
+        return NumberUtils.between(tempo, minimo, maximo);
     }
 }

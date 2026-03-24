@@ -37,7 +37,7 @@ public class ElegibilidadePorTempoStrategy implements RotinaElegibilidadeStrateg
 
     private boolean isValido(int tempo, Long minimo, Long maximo) {
         if (minimo == null || maximo == null)
-            return true;
+            return false;
 
         return NumberUtils.between(tempo, minimo, maximo);
     }

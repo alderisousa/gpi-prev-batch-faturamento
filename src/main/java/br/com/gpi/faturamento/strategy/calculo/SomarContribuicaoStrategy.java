@@ -15,10 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component("SOMA_CONTRIBUICAO")
@@ -39,11 +36,6 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
             List<Long> idsContribuicao = getIdsContribuicao(dados, movimentos, parametro);
             List<Long> idsTipoContribuicao = parametro.getIdsTipoContribuicao();
 
-            if (parametro.isSomaValorRecebido()) {
-                List<ArrecadacaoCarga> cargas = listarCargasEmCache(dados);
-                dados.setSomaValorRecebido(valorParaSoma(dados, idsContribuicao, cargas));
-            }
-
             List<ArrecadacaoMovimento> movimentosAux = movimentos.stream()
                     .filter(m ->
                             (
@@ -52,6 +44,19 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
                             )
                             && dados.getIdPessoaPlano().equals(m.getIdPessoaPlano()))
                     .toList();
+
+            if (parametro.isSomaValorRecebido()) {
+                BigDecimal somaValorRecebido = movimentosAux.stream()
+                        .map(ArrecadacaoMovimento::getValorRecebido)
+                        .filter(Objects::nonNull)
+                        .reduce(BigDecimal::add)
+                        .orElse(BigDecimal.ZERO);
+                dados.setSomaValorRecebido(somaValorRecebido);
+                if (somaValorRecebido.compareTo(BigDecimal.ZERO) == 0) {
+                    List<ArrecadacaoCarga> cargas = listarCargasEmCache(dados);
+                    dados.setSomaValorRecebido(valorParaSoma(dados, idsContribuicao, cargas));
+                }
+            }
 
             BigDecimal somaContribuicao = movimentosAux.stream()
                     .map(ArrecadacaoMovimento::getValorCalculado)

@@ -139,6 +139,7 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
                 arrecadacao.setAnoReferencia(item.getAnoReferencia());
                 arrecadacao.setMesReferencia(item.getMesReferencia());
                 arrecadacao.setIdPerfilInvestimento(distribuicao.getIdPerfilInvestimento());
+                arrecadacao.setValorFinal(dados.getSomaValorRecebido());
                 faturamentos.add(arrecadacao);
             }
         } else {
@@ -147,6 +148,7 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
             arrecadacao.setAnoReferencia(item.getAnoReferencia());
             arrecadacao.setMesReferencia(item.getMesReferencia());
             arrecadacao.setIdPerfilInvestimento(dados.getIdPerfilInvestimento());
+            arrecadacao.setValorFinal(dados.getSomaValorRecebido());
             faturamentos.add(arrecadacao);
         }
 

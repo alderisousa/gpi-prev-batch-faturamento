@@ -40,6 +40,7 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                            coalesce(pc.INDICE_ID, pcr.INDICE_ID, pgc.INDICE_ID) INDICE_ID,
                            pes.DATA_NASCIMENTO,
                            ppj.DISTRIBUICAO_FLAG,
+                           ppj.PESSOA_JURIDICA_ID,
                            pp.ID PESSOA_PLANO_ID,
                            pc.ID PESSOA_CONTRIBUICAO_ID,
                            con.ATRIBUICAO_PAGAMENTO_ID,

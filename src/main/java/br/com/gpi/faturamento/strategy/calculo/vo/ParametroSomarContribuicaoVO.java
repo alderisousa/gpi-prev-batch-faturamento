@@ -16,6 +16,7 @@ public class ParametroSomarContribuicaoVO {
     private List<Long> idsTipoContribuicao;
     private List<FiltroParametroSomarContribuicaoVO> filtros;
     private boolean isAplicaPercentual;
+    private boolean isSomaValorRecebido;
     private List<FaixaContribuicaoVO> faixasContribuicoes;
     private List<FaixaTempoPlanoVO> faixasTempoPlano;
     private Integer qtDecimais;

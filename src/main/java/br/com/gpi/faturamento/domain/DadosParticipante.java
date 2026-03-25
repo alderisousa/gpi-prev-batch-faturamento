@@ -14,6 +14,7 @@ public class DadosParticipante {
     private Long idContribuicaoPai;
     private String nmContribuicao;
     private Long idPessoa;
+    private Long idPessoaJuridica;
     private Long idPessoaPlano;
     private Long idPessoaContribuicao;
     private Long idIndice;
@@ -47,5 +48,6 @@ public class DadosParticipante {
     private String contrib13Flag;
     private BigDecimal pct13;
     private BigDecimal valorMinimo;
+    private BigDecimal somaValorRecebido;
 
 }

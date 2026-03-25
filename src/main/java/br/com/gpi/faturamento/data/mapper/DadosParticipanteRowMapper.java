@@ -19,6 +19,7 @@ public class DadosParticipanteRowMapper implements RowMapper<DadosParticipante> 
                 .idContribuicao(rs.getLong("CONTRIBUICAO_ID"))
                 .idContribuicaoPai(rs.getLong("CONTRIBUICAO_PAI_ID"))
                 .idPessoa(rs.getLong("PESSOA_ID"))
+                .idPessoaJuridica(rs.getLong("PESSOA_JURIDICA_ID"))
                 .idIndice(rs.getLong("INDICE_ID"))
                 .idVinculo(rs.getLong("VINCULO_ID"))
                 .salarioContribuicao(rs.getBigDecimal("SALARIO"))

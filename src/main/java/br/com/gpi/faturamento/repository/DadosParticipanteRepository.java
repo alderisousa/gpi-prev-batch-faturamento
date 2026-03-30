@@ -18,7 +18,7 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
               from (select distinct
                            con.DESCRICAO CONTRIBUICAO_DESCRICAO,
                            con.ID CONTRIBUICAO_ID,
-                           pp.DATA_OPCAO,
+                           coalesce(pp.DATA_ADESAO, pp.DATA_OPCAO) DATA_OPCAO,
                            pp.PESSOA_ID,
                            vin.ID VINCULO_ID,
                            vin.SALARIO,
@@ -35,11 +35,12 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                            pgc.ROTINA_RETORNO_ID,
                            rcr.DESCRICAO ROTINA_RETORNO_DESCRICAO,
                            pgc.PARAMETRO_RETORNO,
-                           isnull(pc.QTD_INDICE, pgc.QTD_INDICE) QTD_INDICE,
-                           isnull(pc.PERCENTUAL, pgc.PERCENTUAL) PERCENTUAL,
-                           isnull(pc.INDICE_ID, pgc.INDICE_ID) INDICE_ID,
+                           coalesce(pc.QTD_INDICE, pcr.QTD_INDICE, pgc.QTD_INDICE) QTD_INDICE,
+                           coalesce(pc.PERCENTUAL, pcr.PERCENTUAL, pgc.PERCENTUAL) PERCENTUAL,
+                           coalesce(pc.INDICE_ID, pcr.INDICE_ID, pgc.INDICE_ID) INDICE_ID,
                            pes.DATA_NASCIMENTO,
                            ppj.DISTRIBUICAO_FLAG,
+                           ppj.PESSOA_JURIDICA_ID,
                            pp.ID PESSOA_PLANO_ID,
                            pc.ID PESSOA_CONTRIBUICAO_ID,
                            con.ATRIBUICAO_PAGAMENTO_ID,
@@ -50,7 +51,10 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                            pla.MES_DECIMO_TERCEIRO,
                            con.INCIDE_13,
                            con.PERCENTUAL_ADICIONAL,
-                           case when pc.DOBRA_13 = 'N' then 'N' else 'S' end DOBRA_13
+                           case when pc.DOBRA_13 = 'N' then 'N' else 'S' end DOBRA_13,
+                           coalesce(con.CONTRIB_13, 'N') CONTRIB_13,
+                           con.VALOR_MINIMO,
+                           :dataCompetencia DATA_COMPETENCIA
                       from CONTRIBUICAO             con
                       join PLANO_GRUPO_CONTRIBUICAO pgc on con.ID              = pgc.CONTRIBUICAO_ID
                       join PESSOA_PLANO_GRUPO       ppg on ppg.PLANO_GRUPO_ID  = pgc.PLANO_GRUPO_ID
@@ -72,6 +76,10 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                       left join ROTINA_CALCULO      rce on rce.ID              = pgc.ROTINA_ELEGIBILIDADE_ID
                       left join ROTINA_CALCULO      rcc on rcc.ID              = pgc.ROTINA_CALCULO_ID
                       left join ROTINA_CALCULO      rcr on rcr.ID              = pgc.ROTINA_RETORNO_ID
+                      left join CONTRIBUICAO       cref on cref.ID             = con.CONTRIBUICAO_REF_ID
+                      left join PESSOA_CONTRIBUICAO pcr on pcr.CONTRIBUICAO_ID = cref.ID
+                                                       and pp.ID               = pcr.PESSOA_PLANO_ID
+                                                       and :dataCompetencia between pcr.DATA_INICIAL and ISNULL(pcr.DATA_FINAL, :dataCompetencia)
                      where 1=1
                        and ppj.PESSOA_JURIDICA_ID = :idPessoaJuridica
                        and (:idPlano is null or con.PLANO_ID = :idPlano)

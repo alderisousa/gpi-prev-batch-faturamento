@@ -1,19 +1,30 @@
 package br.com.gpi.faturamento.strategy.calculo;
 
+import br.com.gpi.faturamento.domain.ArrecadacaoCarga;
 import br.com.gpi.faturamento.domain.ArrecadacaoMovimento;
 import br.com.gpi.faturamento.domain.DadosParticipante;
+import br.com.gpi.faturamento.repository.ArrecadacaoCargaRepository;
+import br.com.gpi.faturamento.strategy.calculo.vo.FaixaTempoPlanoVO;
 import br.com.gpi.faturamento.strategy.calculo.vo.FiltroParametroSomarContribuicaoVO;
 import br.com.gpi.faturamento.strategy.calculo.vo.ParametroSomarContribuicaoVO;
+import br.com.gpi.faturamento.utils.DateUtils;
 import br.com.gpi.faturamento.utils.NumberUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component("SOMA_CONTRIBUICAO")
+@RequiredArgsConstructor
 public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
+
+    private final ArrecadacaoCargaRepository arrecadacaoCargaRepository;
+
+    private final Map<ChaveArrecadacaoCarga, List<ArrecadacaoCarga>> cargasPorCompetencia = new ConcurrentHashMap<>();
 
     @Override
     public BigDecimal executar(List<ArrecadacaoMovimento> movimentos, DadosParticipante dados) {
@@ -34,18 +45,60 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
                             && dados.getIdPessoaPlano().equals(m.getIdPessoaPlano()))
                     .toList();
 
+            if (parametro.isSomaValorRecebido()) {
+                BigDecimal somaValorRecebido = movimentosAux.stream()
+                        .map(ArrecadacaoMovimento::getValorRecebido)
+                        .filter(Objects::nonNull)
+                        .reduce(BigDecimal::add)
+                        .orElse(BigDecimal.ZERO);
+                dados.setSomaValorRecebido(somaValorRecebido);
+                if (somaValorRecebido.compareTo(BigDecimal.ZERO) == 0) {
+                    List<ArrecadacaoCarga> cargas = listarCargasEmCache(dados);
+                    dados.setSomaValorRecebido(valorParaSoma(dados, idsContribuicao, cargas));
+                }
+            }
+
             BigDecimal somaContribuicao = movimentosAux.stream()
                     .map(ArrecadacaoMovimento::getValorCalculado)
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ZERO);
             BigDecimal contribuicao = NumberUtils.multiplicarValor(somaContribuicao, getPercentual(dados, parametro), parametro.getQtDecimais());
-            return aplicarFaixaContribuicao(contribuicao, parametro);
+            BigDecimal contribuicaoFinal = aplicarFaixaContribuicao(contribuicao, parametro, dados);
+            return aplicarRegraValorMaximo(contribuicaoFinal, parametro.getVlMaximoContribuicao());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
     }
 
-    private BigDecimal aplicarFaixaContribuicao(BigDecimal contribuicao, ParametroSomarContribuicaoVO parametro) {
+    private List<ArrecadacaoCarga> listarCargasEmCache(DadosParticipante dados) {
+        if (dados.getIdPessoaJuridica() == null || dados.getDataCompetencia() == null) {
+            return Collections.emptyList();
+        }
+        LocalDate comp = dados.getDataCompetencia();
+        String anoReferencia = String.valueOf(comp.getYear());
+        String mesReferencia = String.format("%02d", comp.getMonthValue());
+        ChaveArrecadacaoCarga chave = new ChaveArrecadacaoCarga(dados.getIdPessoaJuridica(), anoReferencia, mesReferencia);
+        return cargasPorCompetencia.computeIfAbsent(chave,
+                k -> arrecadacaoCargaRepository.listar(k.idPessoaJuridica(), k.mesReferencia(), k.anoReferencia()));
+    }
+
+    private BigDecimal valorParaSoma(DadosParticipante dados, List<Long> idsContribuicao, List<ArrecadacaoCarga> cargas) {
+        return cargas.stream()
+                .filter(c -> c.getIdPessoaPlano().equals(dados.getIdPessoaPlano())
+                        && idsContribuicao.contains(c.getIdContribuicao()))
+                .map(ArrecadacaoCarga::getValorRecebido)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+    }
+
+    private BigDecimal aplicarRegraValorMaximo(BigDecimal contribuicaoFinal, BigDecimal vlMaximoContribuicao) {
+        if (vlMaximoContribuicao == null || vlMaximoContribuicao.compareTo(contribuicaoFinal) > 0) {
+            return contribuicaoFinal;
+        }
+        return vlMaximoContribuicao;
+    }
+
+    private BigDecimal aplicarFaixaContribuicao(BigDecimal contribuicao, ParametroSomarContribuicaoVO parametro, DadosParticipante dados) {
         if (parametro.getFaixasContribuicoes() != null && !parametro.getFaixasContribuicoes().isEmpty()) {
             BigDecimal contribuicaoTotal = BigDecimal.ZERO;
             BigDecimal auxiliar = BigDecimal.ZERO;
@@ -58,6 +111,9 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
                 }
             }
             return contribuicaoTotal;
+        } else if (parametro.getFaixasTempoPlano() != null && !parametro.getFaixasTempoPlano().isEmpty()) {
+            BigDecimal percentual = getPercentualPorFaixa(dados, parametro.getFaixasTempoPlano());
+            return NumberUtils.multiplicarValor(contribuicao, percentual);
         }
         return contribuicao;
     }
@@ -127,6 +183,19 @@ public class SomarContribuicaoStrategy implements RotinaCalculoStrategy {
             return NumberUtils.percentualParaTaxa(dados.getPctContribuicao());
         }
         return BigDecimal.ONE;
+    }
+
+    private BigDecimal getPercentualPorFaixa(DadosParticipante dados, List<FaixaTempoPlanoVO> faixas) {
+        long tempoPlano = DateUtils.calculaAno(dados.getDataOpcao(), dados.getDataCompetencia());
+        for (var faixa: faixas) {
+            if (tempoPlano >= faixa.getTempoPlanoMinimo() && tempoPlano < faixa.getTempoPlanoMaximo()) {
+                return NumberUtils.percentualParaTaxa(faixa.getPercentual());
+            }
+        }
+        return NumberUtils.percentualParaTaxa(BigDecimal.ONE);
+    }
+
+    private record ChaveArrecadacaoCarga(Long idPessoaJuridica, String anoReferencia, String mesReferencia) {
     }
 
 }

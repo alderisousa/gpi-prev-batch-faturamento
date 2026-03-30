@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -15,6 +16,9 @@ public class ParametroSomarContribuicaoVO {
     private List<Long> idsTipoContribuicao;
     private List<FiltroParametroSomarContribuicaoVO> filtros;
     private boolean isAplicaPercentual;
+    private boolean isSomaValorRecebido;
     private List<FaixaContribuicaoVO> faixasContribuicoes;
+    private List<FaixaTempoPlanoVO> faixasTempoPlano;
     private Integer qtDecimais;
+    private BigDecimal vlMaximoContribuicao;
 }

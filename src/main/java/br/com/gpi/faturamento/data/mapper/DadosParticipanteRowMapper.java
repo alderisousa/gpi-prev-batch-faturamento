@@ -14,10 +14,12 @@ public class DadosParticipanteRowMapper implements RowMapper<DadosParticipante> 
     public DadosParticipante mapRow(ResultSet rs, int rowNum) throws SQLException {
         return DadosParticipante.builder()
                 .dataOpcao(Optional.ofNullable(rs.getDate("DATA_OPCAO")).map(Date::toLocalDate).orElse(null))
+                .dataCompetencia(Optional.ofNullable(rs.getDate("DATA_COMPETENCIA")).map(Date::toLocalDate).orElse(null))
                 .nmContribuicao(rs.getString("CONTRIBUICAO_DESCRICAO"))
                 .idContribuicao(rs.getLong("CONTRIBUICAO_ID"))
                 .idContribuicaoPai(rs.getLong("CONTRIBUICAO_PAI_ID"))
                 .idPessoa(rs.getLong("PESSOA_ID"))
+                .idPessoaJuridica(rs.getLong("PESSOA_JURIDICA_ID"))
                 .idIndice(rs.getLong("INDICE_ID"))
                 .idVinculo(rs.getLong("VINCULO_ID"))
                 .salarioContribuicao(rs.getBigDecimal("SALARIO"))
@@ -46,6 +48,8 @@ public class DadosParticipanteRowMapper implements RowMapper<DadosParticipante> 
                 .pct13(rs.getBigDecimal("PERCENTUAL_ADICIONAL"))
                 .incide13Flag(rs.getString("INCIDE_13"))
                 .dobra13Flag(rs.getString("DOBRA_13"))
+                .contrib13Flag(rs.getString("CONTRIB_13"))
+                .valorMinimo(rs.getBigDecimal("VALOR_MINIMO"))
                 .build();
     }
 }

@@ -90,7 +90,9 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
     }
 
     private void setValorFinal(ArrecadacaoMovimento movimento, BigDecimal valor) {
-        if (FLAG_SIM.equals(movimento.getContribuicaoFinalFlag())) {
+        if (FLAG_SIM.equals(movimento.getContribuicaoFinalFlag()) 
+            && (movimento.getValorFinal() == null 
+                || movimento.getValorFinal().compareTo(BigDecimal.ZERO) == 0)) {
             movimento.setValorFinal(valor);
         }
     }

@@ -8,4 +8,6 @@ public class ParametroElegibilidadeTempoVO {
     private Long idadeMaxima;
     private Long tempoEmpresaMinimo;
     private Long tempoEmpresaMaximo;
+    private Long tempoPlanoMinimo;
+    private Long tempoPlanoMaximo;
 }

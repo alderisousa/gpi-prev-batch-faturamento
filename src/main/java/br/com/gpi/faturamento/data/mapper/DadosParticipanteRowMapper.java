@@ -50,6 +50,7 @@ public class DadosParticipanteRowMapper implements RowMapper<DadosParticipante> 
                 .dobra13Flag(rs.getString("DOBRA_13"))
                 .contrib13Flag(rs.getString("CONTRIB_13"))
                 .valorMinimo(rs.getBigDecimal("VALOR_MINIMO"))
+                .idSituacaoPlano(rs.getLong("SITUACAO_PESSOA_PLANO_ID"))
                 .build();
     }
 }

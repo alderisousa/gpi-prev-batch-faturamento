@@ -20,6 +20,7 @@ public class DadosParticipante {
     private Long idIndice;
     private Long idVinculo;
     private Long idSituacaoVinculo;
+    private Long idSituacaoPlano;
     private LocalDate dataOpcao;
     private LocalDate dataNascimento;
     private LocalDate dataCompetencia;

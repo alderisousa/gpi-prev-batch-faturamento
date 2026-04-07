@@ -51,16 +51,17 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                            pla.MES_DECIMO_TERCEIRO,
                            con.INCIDE_13,
                            con.PERCENTUAL_ADICIONAL,
-                           coalesce(con.DOBRA_CONTRIBUICAO_13, pc.DOBRA_13, 'N') DOBRA_13,
+                           --coalesce(con.DOBRA_CONTRIBUICAO_13, pc.DOBRA_13, 'N') DOBRA_13,
+                           coalesce(pc.DOBRA_13, 'N') DOBRA_13,
                            coalesce(con.CONTRIB_13, 'N') CONTRIB_13,
                            con.VALOR_MINIMO,
-                           :dataCompetencia DATA_COMPETENCIA
+                           :dataCompetencia DATA_COMPETENCIA,
+                           pp.SITUACAO_PESSOA_PLANO_ID
                       from CONTRIBUICAO             con
                       join PLANO_GRUPO_CONTRIBUICAO pgc on con.ID              = pgc.CONTRIBUICAO_ID
                       join PESSOA_PLANO_GRUPO       ppg on ppg.PLANO_GRUPO_ID  = pgc.PLANO_GRUPO_ID
                       join PLANO_GRUPO              pg  on pg.ID               = ppg.PLANO_GRUPO_ID
                       join PESSOA_PLANO             pp  on ppg.PESSOA_PLANO_ID = pp.ID
-                                                       and pp.SITUACAO_PESSOA_PLANO_ID = 1
                                                        and (pgc.PERCENTUAL is null or (con.OPCAO_MODALIDADE_ID = pp.OPCAO_MODALIDADE_ID or con.ATRIBUICAO_PAGAMENTO_ID = 2))
                                                        and pp.DATA_ADESAO     <= :dataCompetencia
                       join PLANO                    pla on pla.ID              = con.PLANO_ID

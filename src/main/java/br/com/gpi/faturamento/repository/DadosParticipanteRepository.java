@@ -24,7 +24,7 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                            vin.SALARIO,
                            vin.DATA_ADMISSAO,
                            vin.SITUACAO_VINCULO_ID,
-                           ur.VALOR_UR_INICIAL VALOR_UR,
+                           vur.VALOR VALOR_UR,
                            con.TIPO_CONTRIBUICAO_ID,
                            pgc.ROTINA_ELEGIBILIDADE_ID,
                            rce.DESCRICAO ROTINA_ELEGIBILIDADE_DESCRICAO,
@@ -75,6 +75,8 @@ public interface DadosParticipanteRepository extends CrudRepository<DadosPartici
                                                        and :dataCompetencia between pc.DATA_INICIAL and ISNULL(pc.DATA_FINAL, :dataCompetencia)
                       left join UNIDADE_REFERENCIA   ur on ur.PLANO_ID         = pla.ID
                                                        and (ur.PLANO_GRUPO_ID  is null or ur.PLANO_GRUPO_ID = pgc.PLANO_GRUPO_ID)
+                      left join VALORES_UNIDADE_REFERENCIA vur on vur.UNIDADE_REFERENCIA_ID = ur.ID
+                                                       and :dataCompetencia BETWEEN vur.DATA_INICIO and vur.DATA_FIM
                       left join ROTINA_CALCULO      rce on rce.ID              = pgc.ROTINA_ELEGIBILIDADE_ID
                       left join ROTINA_CALCULO      rcc on rcc.ID              = pgc.ROTINA_CALCULO_ID
                       left join ROTINA_CALCULO      rcr on rcr.ID              = pgc.ROTINA_RETORNO_ID

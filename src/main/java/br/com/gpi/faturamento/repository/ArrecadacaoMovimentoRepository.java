@@ -43,7 +43,7 @@ public interface ArrecadacaoMovimentoRepository extends CrudRepository<Arrecadac
                   left join HISTORICO_SITUACAO_VINCULO hsv on hsv.VINCULO_ID = c.ID
                                                           AND :dataCompetencia BETWEEN hsv.DATA_INICIO and hsv.DATA_FIM
                  where c.PJ_ID = :idPessoaJuridica
-                   and (hsv.SITUACAO_VINCULO_ID is null or hsv.SITUACAO_VINCULO_ID not in (3,8,9)))
+                   and (hsv.SITUACAO_VINCULO_ID is null or hsv.SITUACAO_VINCULO_ID not in (8)))
                  and ANO_REFERENCIA = :anoReferencia
                  and MES_REFERENCIA = :mesReferencia
             """)

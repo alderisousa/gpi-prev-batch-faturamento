@@ -13,12 +13,11 @@ import java.util.List;
 public interface ArrecadacaoCargaRepository extends CrudRepository<ArrecadacaoCarga, Long> {
 
     @Query(value = """
-            select *
+            select ac.*
               from ARRECADACAO_CARGA ac
               join PESSOA_PLANO pp on pp.ID = ac.PESSOA_PLANO_ID
               join VINCULO v on v.PESSOA_ID = pp.PESSOA_ID
                             and v.PJ_ID = :idPessoaJuridica
-                            and v.SITUACAO_VINCULO_ID not in (3,8,9)
              where ac.ANO_REFERENCIA = :anoReferencia
                and ac.MES_REFERENCIA = :mesReferencia
             """, rowMapperClass = ArrecadacaoCargaRowMapper.class)

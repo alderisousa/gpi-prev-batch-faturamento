@@ -46,7 +46,7 @@ public class FaturamentoProcessor implements ItemProcessor<PlanoProcessamento, P
 
         var dadosParticipantes = dadosParticipanteRepository.listarParticipantes(item.getIdPessoaJuridica(), item.getIdPlano(), dataCompetencia);
 
-        var salarios = historicoSalarialRepository.listarSalarios(item.getIdPessoaJuridica(), dataCompetenciaSalario);
+        var salarios = historicoSalarialRepository.listarSalarios(item.getIdPessoaJuridica(), dataCompetenciaSalario, dataCompetencia);
 
         List<Distribuicao> distribuicoes = listarDistribuicao(item, dataCompetencia);
 

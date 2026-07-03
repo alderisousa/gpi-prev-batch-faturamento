@@ -13,16 +13,13 @@ import java.util.List;
 public interface ArrecadacaoCargaRepository extends CrudRepository<ArrecadacaoCarga, Long> {
 
     @Query(value = """
-            select *
-              from ARRECADACAO_CARGA
-             where PESSOA_PLANO_ID in (select pp.ID
-                                         from CONTRIBUICAO b
-                                         join PLANO_PESSOA_JURIDICA c on b.PLANO_ID = c.PLANO_ID
-                                         join VINCULO v on v.PJ_ID = c.PESSOA_JURIDICA_ID
-                                         join PESSOA_PLANO pp on pp.PESSOA_ID = v.PESSOA_ID
-                                        where c.PESSOA_JURIDICA_ID = :idPessoaJuridica)
-               and ANO_REFERENCIA = :anoReferencia
-               and MES_REFERENCIA = :mesReferencia
+            select ac.*
+              from ARRECADACAO_CARGA ac
+              join PESSOA_PLANO pp on pp.ID = ac.PESSOA_PLANO_ID
+              join VINCULO v on v.PESSOA_ID = pp.PESSOA_ID
+                            and v.PJ_ID = :idPessoaJuridica
+             where ac.ANO_REFERENCIA = :anoReferencia
+               and ac.MES_REFERENCIA = :mesReferencia
             """, rowMapperClass = ArrecadacaoCargaRowMapper.class)
     List<ArrecadacaoCarga> listar(@Param("idPessoaJuridica") Long idPessoaJuridica,
                                   @Param("mesReferencia") String mesReferencia,

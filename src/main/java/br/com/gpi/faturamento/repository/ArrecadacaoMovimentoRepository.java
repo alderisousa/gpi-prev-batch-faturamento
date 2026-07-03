@@ -8,6 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -32,16 +33,19 @@ public interface ArrecadacaoMovimentoRepository extends CrudRepository<Arrecadac
 
     @Modifying
     @Query(value = """
-             delete
-               from ARRECADACAO_MOVIMENTO
-              where PESSOA_PLANO_ID in (
-                  select a.ID
-                   from PESSOA_PLANO a
-                   join PESSOA b on b.ID  = a.PESSOA_ID
-                   join VINCULO c on c.PESSOA_ID = b.ID
-                  where c.PJ_ID = :idPessoaJuridica)
-                  and ANO_REFERENCIA = :anoReferencia
-                  and MES_REFERENCIA = :mesReferencia
+             delete a
+               from ARRECADACAO_MOVIMENTO a
+              where a.PESSOA_PLANO_ID in (
+                 select a.ID
+                  from PESSOA_PLANO a
+                  join PESSOA b on b.ID  = a.PESSOA_ID
+                  join VINCULO c on c.PESSOA_ID = b.ID
+                  left join HISTORICO_SITUACAO_VINCULO hsv on hsv.VINCULO_ID = c.ID
+                                                          AND :dataCompetencia BETWEEN hsv.DATA_INICIO and hsv.DATA_FIM
+                 where c.PJ_ID = :idPessoaJuridica
+                   and (hsv.SITUACAO_VINCULO_ID is null or hsv.SITUACAO_VINCULO_ID not in (8)))
+                 and ANO_REFERENCIA = :anoReferencia
+                 and MES_REFERENCIA = :mesReferencia
             """)
-    void removerPorAnoMesReferencia(Long idPessoaJuridica, String mesReferencia, String anoReferencia);
+    void removerPorAnoMesReferencia(Long idPessoaJuridica, String mesReferencia, String anoReferencia, LocalDate dataCompetencia);
 }

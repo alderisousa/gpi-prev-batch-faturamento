@@ -6,6 +6,7 @@ import br.com.gpi.faturamento.repository.ArrecadacaoMovimentoHistoricoRepository
 import br.com.gpi.faturamento.repository.ArrecadacaoMovimentoRepository;
 import br.com.gpi.faturamento.repository.ArrecadacaoRepository;
 import br.com.gpi.faturamento.service.PlanoProcessamentoService;
+import br.com.gpi.faturamento.utils.DateUtils;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,8 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
             arrecadacaoMovimentoRepository.removerPorAnoMesReferencia(
                     processamento.getIdPessoaJuridica(),
                     processamento.getMesReferencia(),
-                    processamento.getAnoReferencia());
+                    processamento.getAnoReferencia(),
+                    DateUtils.getCompetencia(processamento.getAnoReferencia(), processamento.getMesReferencia()));
 
             List<ArrecadacaoCarga> recebidos = arrecadacaoCargaRepository.listar(
                     processamento.getIdPessoaJuridica(),

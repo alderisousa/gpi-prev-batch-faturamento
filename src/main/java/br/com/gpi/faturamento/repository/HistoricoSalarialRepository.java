@@ -19,8 +19,9 @@ public interface HistoricoSalarialRepository extends PagingAndSortingRepository<
               from VINCULO v
               join HISTORICO_SALARIAL hs on v.ID = hs.VINCULO_ID
              where v.PJ_ID = :idPessoaJuridica
-               and hs.DATA_SALARIO = :dataCompetenciaSalario
+               and hs.DATA_SALARIO between :dataCompetenciaSalario and :dataCompetencia
             """, rowMapperClass = HistoricoSalarialRowMapper.class)
     List<HistoricoSalarial> listarSalarios(@Param("idPessoaJuridica") Long idPessoaJuridica,
-                                           @Param("dataCompetenciaSalario") LocalDate dataCompetenciaSalario);
+                                           @Param("dataCompetenciaSalario") LocalDate dataCompetenciaSalario,
+                                           @Param("dataCompetencia") LocalDate dataCompetencia);
 }

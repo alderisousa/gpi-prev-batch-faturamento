@@ -27,6 +27,8 @@ public class ArrecadacaoMovimento extends ArrecadacaoMovimentoKey {
     private Long idPessoaPlano;
     @Column("ARRECADACAO_ID")
     private Long idArrecadacao;
+    @Column("PJ_ID")
+    private Long idPessoaJuridica;
     @Column("INDICE_ARRECADACAO_ID")
     private Long idIndiceArrecadacao;
     @Column("INDICE_RECEBIDO_ID")
@@ -60,6 +62,7 @@ public class ArrecadacaoMovimento extends ArrecadacaoMovimentoKey {
         this.valorCalculado = BigDecimal.ZERO;
         this.valorRecebido = BigDecimal.ZERO;
         this.valorFinal = BigDecimal.ZERO;
+        this.idPessoaJuridica = dados.getIdPessoaJuridica();
     }
 
     public ArrecadacaoMovimento(ArrecadacaoCarga dados) {
@@ -73,5 +76,6 @@ public class ArrecadacaoMovimento extends ArrecadacaoMovimentoKey {
         this.idPerfilInvestimento = dados.getIdPerfilInvestimento();
         this.anoReferencia = dados.getAnoReferencia();
         this.mesReferencia = dados.getMesReferencia();
+        this.idPessoaJuridica = dados.getIdPessoaJuridica();
     }
 }

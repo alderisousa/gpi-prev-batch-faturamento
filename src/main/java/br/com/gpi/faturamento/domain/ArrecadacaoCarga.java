@@ -24,6 +24,8 @@ public class ArrecadacaoCarga extends ArrecadacaoMovimentoKey {
     private Long idContribuicao;
     @Column("PESSOA_PLANO_ID")
     private Long idPessoaPlano;
+    @Column("PJ_ID")
+    private Long idPessoaJuridica;
     @Column("INDICE_ID")
     private Long idIndice;
     @Column("PERFIL_INVESTIMENTO_ID")

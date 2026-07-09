@@ -14,84 +14,88 @@ import java.util.List;
 public interface DadosParticipanteRepository extends CrudRepository<DadosParticipante, Long> {
 
     @Query(value = """
-            select *
-              from (select distinct
-                           con.DESCRICAO CONTRIBUICAO_DESCRICAO,
-                           con.ID CONTRIBUICAO_ID,
-                           coalesce(pp.DATA_ADESAO, pp.DATA_OPCAO) DATA_OPCAO,
-                           pp.PESSOA_ID,
-                           vin.ID VINCULO_ID,
-                           vin.SALARIO,
-                           vin.DATA_ADMISSAO,
-                           vin.SITUACAO_VINCULO_ID,
-                           vur.VALOR VALOR_UR,
-                           con.TIPO_CONTRIBUICAO_ID,
-                           pgc.ROTINA_ELEGIBILIDADE_ID,
-                           rce.DESCRICAO ROTINA_ELEGIBILIDADE_DESCRICAO,
-                           pgc.PARAMETRO_ELEGIBILIDADE,
-                           pgc.ROTINA_CALCULO_ID,
-                           rcc.DESCRICAO ROTINA_CALCULO_DESCRICAO,
-                           pgc.PARAMETRO_CALCULO,
-                           pgc.ROTINA_RETORNO_ID,
-                           rcr.DESCRICAO ROTINA_RETORNO_DESCRICAO,
-                           pgc.PARAMETRO_RETORNO,
-                           case when con.PERCENTUAL_VALOR in (1,2) then coalesce(pc.QTD_INDICE, pcr.QTD_INDICE, pgc.QTD_INDICE) else null end QTD_INDICE,
-                           case when con.PERCENTUAL_VALOR in (0,2) then coalesce(pc.PERCENTUAL, pcr.PERCENTUAL, pgc.PERCENTUAL) else null end PERCENTUAL,
-                           coalesce(pc.INDICE_ID, pcr.INDICE_ID, pgc.INDICE_ID) INDICE_ID,
-                           pes.DATA_NASCIMENTO,
-                           ppj.DISTRIBUICAO_FLAG,
-                           ppj.PESSOA_JURIDICA_ID,
-                           pp.ID PESSOA_PLANO_ID,
-                           pc.ID PESSOA_CONTRIBUICAO_ID,
-                           con.ATRIBUICAO_PAGAMENTO_ID,
-                           con.ORDEM,
-                           pp.PERFIL_INVESTIMENTO_ID,
-                           con.FL_SALARIO_PARTICIPACAO SALARIO_PARTICIPACAO_FLAG,
-                           con.CONTRIBUICAO_ID CONTRIBUICAO_PAI_ID,
-                           pla.MES_DECIMO_TERCEIRO,
-                           con.INCIDE_13,
-                           con.PERCENTUAL_ADICIONAL,
-                           --coalesce(con.DOBRA_CONTRIBUICAO_13, pc.DOBRA_13, 'N') DOBRA_13,
-                           coalesce(pc.DOBRA_13, 'N') DOBRA_13,
-                           coalesce(con.CONTRIB_13, 'N') CONTRIB_13,
-                           con.VALOR_MINIMO,
-                           :dataCompetencia DATA_COMPETENCIA,
-                           pp.SITUACAO_PESSOA_PLANO_ID
-                      from CONTRIBUICAO             con
-                      join PLANO_GRUPO_CONTRIBUICAO pgc on con.ID              = pgc.CONTRIBUICAO_ID
-                      join PESSOA_PLANO_GRUPO       ppg on ppg.PLANO_GRUPO_ID  = pgc.PLANO_GRUPO_ID
-                      join PLANO_GRUPO              pg  on pg.ID               = ppg.PLANO_GRUPO_ID
-                      join PESSOA_PLANO             pp  on ppg.PESSOA_PLANO_ID = pp.ID
-                                                       and (pgc.PERCENTUAL is null or (con.OPCAO_MODALIDADE_ID = pp.OPCAO_MODALIDADE_ID or con.ATRIBUICAO_PAGAMENTO_ID = 2))
-                                                       and pp.DATA_ADESAO     <= :dataCompetencia
-                      join PLANO                    pla on pla.ID              = con.PLANO_ID
-                      join PESSOA                   pes on pes.ID              = pp.PESSOA_ID
-                      join VINCULO                  vin on vin.PESSOA_ID       = pp.PESSOA_ID
-                                                    and (vin.DATA_DEMISSAO     is null or vin.DATA_DEMISSAO > :dataCompetencia)
-                      JOIN PLANO_PESSOA_JURIDICA    ppj on ppj.PLANO_ID        = pla.ID
-                                                    and ppj.PESSOA_JURIDICA_ID = vin.PJ_ID
-                      left join PESSOA_CONTRIBUICAO pc  on pc.CONTRIBUICAO_ID  = con.ID
-                                                       and pp.ID               = pc.PESSOA_PLANO_ID
-                                                       and :dataCompetencia between pc.DATA_INICIAL and ISNULL(pc.DATA_FINAL, :dataCompetencia)
-                      left join UNIDADE_REFERENCIA   ur on ur.PLANO_ID         = pla.ID
-                                                       and (ur.PLANO_GRUPO_ID  is null or ur.PLANO_GRUPO_ID = pgc.PLANO_GRUPO_ID)
-                      left join VALORES_UNIDADE_REFERENCIA vur on vur.UNIDADE_REFERENCIA_ID = ur.ID
-                                                       and :dataCompetencia BETWEEN vur.DATA_INICIO and vur.DATA_FIM
-                      left join ROTINA_CALCULO      rce on rce.ID              = pgc.ROTINA_ELEGIBILIDADE_ID
-                      left join ROTINA_CALCULO      rcc on rcc.ID              = pgc.ROTINA_CALCULO_ID
-                      left join ROTINA_CALCULO      rcr on rcr.ID              = pgc.ROTINA_RETORNO_ID
-                      left join CONTRIBUICAO       cref on cref.ID             = con.CONTRIBUICAO_REF_ID
-                      left join PESSOA_CONTRIBUICAO pcr on pcr.CONTRIBUICAO_ID = cref.ID
-                                                       and pp.ID               = pcr.PESSOA_PLANO_ID
-                                                       and :dataCompetencia between pcr.DATA_INICIAL and ISNULL(pcr.DATA_FINAL, :dataCompetencia)
-                     where 1=1
-                       and ppj.PESSOA_JURIDICA_ID = :idPessoaJuridica
-                       and (:idPlano is null or con.PLANO_ID = :idPlano)
-                       and :dataCompetencia between con.DATA_INICIAL  and ISNULL(con.DATA_FINAL, :dataCompetencia)
-                       and (coalesce(con.CONTRIB_13, 'N') != 'S' or (con.CONTRIB_13 = 'S' and MONTH(:dataCompetencia) = pla.MES_DECIMO_TERCEIRO))
-                   ) vw
+        select *
+           from (select distinct
+                        con.DESCRICAO CONTRIBUICAO_DESCRICAO,
+                        con.ID CONTRIBUICAO_ID,
+                        coalesce(pp.DATA_ADESAO, pp.DATA_OPCAO) DATA_OPCAO,
+                        pp.PESSOA_ID,
+                        vin.ID VINCULO_ID,
+                        vin.SALARIO,
+                        vin.DATA_ADMISSAO,
+                        coalesce(sit_vinc.SITUACAO_VINCULO_ID, vin.SITUACAO_VINCULO_ID) SITUACAO_VINCULO_ID,
+                        vur.VALOR VALOR_UR,
+                        con.TIPO_CONTRIBUICAO_ID,
+                        pgc.ROTINA_ELEGIBILIDADE_ID,
+                        rce.DESCRICAO ROTINA_ELEGIBILIDADE_DESCRICAO,
+                        pgc.PARAMETRO_ELEGIBILIDADE,
+                        pgc.ROTINA_CALCULO_ID,
+                        rcc.DESCRICAO ROTINA_CALCULO_DESCRICAO,
+                        pgc.PARAMETRO_CALCULO,
+                        pgc.ROTINA_RETORNO_ID,
+                        rcr.DESCRICAO ROTINA_RETORNO_DESCRICAO,
+                        pgc.PARAMETRO_RETORNO,
+                        case when con.PERCENTUAL_VALOR in (1,2) then coalesce(pc.QTD_INDICE, pcr.QTD_INDICE, pgc.QTD_INDICE) else null end QTD_INDICE,
+                        case when con.PERCENTUAL_VALOR in (0,2) then coalesce(pc.PERCENTUAL, pcr.PERCENTUAL, pgc.PERCENTUAL) else null end PERCENTUAL,
+                        coalesce(pc.INDICE_ID, pcr.INDICE_ID, pgc.INDICE_ID) INDICE_ID,
+                        pes.DATA_NASCIMENTO,
+                        ppj.DISTRIBUICAO_FLAG,
+                        ppj.PESSOA_JURIDICA_ID,
+                        pp.ID PESSOA_PLANO_ID,
+                        pc.ID PESSOA_CONTRIBUICAO_ID,
+                        con.ATRIBUICAO_PAGAMENTO_ID,
+                        con.ORDEM,
+                        pp.PERFIL_INVESTIMENTO_ID,
+                        con.FL_SALARIO_PARTICIPACAO SALARIO_PARTICIPACAO_FLAG,
+                        con.CONTRIBUICAO_ID CONTRIBUICAO_PAI_ID,
+                        pla.MES_DECIMO_TERCEIRO,
+                        con.INCIDE_13,
+                        con.PERCENTUAL_ADICIONAL,
+                        --coalesce(con.DOBRA_CONTRIBUICAO_13, pc.DOBRA_13, 'N') DOBRA_13,
+                        coalesce(pc.DOBRA_13, 'N') DOBRA_13,
+                        coalesce(con.CONTRIB_13, 'N') CONTRIB_13,
+                        con.VALOR_MINIMO,
+                        :dataCompetencia DATA_COMPETENCIA,
+                        pp.SITUACAO_PESSOA_PLANO_ID
+                   from CONTRIBUICAO             con
+                   join PLANO_GRUPO_CONTRIBUICAO pgc on con.ID              = pgc.CONTRIBUICAO_ID
+                   join PESSOA_PLANO_GRUPO       ppg on ppg.PLANO_GRUPO_ID  = pgc.PLANO_GRUPO_ID
+                   join PLANO_GRUPO              pg  on pg.ID               = ppg.PLANO_GRUPO_ID
+                   join PESSOA_PLANO             pp  on ppg.PESSOA_PLANO_ID = pp.ID
+                                                    and (pgc.PERCENTUAL is null or (con.OPCAO_MODALIDADE_ID = pp.OPCAO_MODALIDADE_ID or con.ATRIBUICAO_PAGAMENTO_ID = 2))
+                                                    and pp.DATA_ADESAO     <= :dataCompetencia
+                   join PLANO                    pla on pla.ID              = con.PLANO_ID
+                   join PESSOA                   pes on pes.ID              = pp.PESSOA_ID
+                   join VINCULO                  vin on vin.PESSOA_ID       = pp.PESSOA_ID
+                                                 and (vin.DATA_DEMISSAO     is null or vin.DATA_DEMISSAO > :dataCompetencia)
+                   JOIN PLANO_PESSOA_JURIDICA    ppj on ppj.PLANO_ID        = pla.ID
+                                                 and ppj.PESSOA_JURIDICA_ID = vin.PJ_ID
+                   left join PESSOA_CONTRIBUICAO pc  on pc.CONTRIBUICAO_ID  = con.ID
+                                                    and pp.ID               = pc.PESSOA_PLANO_ID
+                                                    and :dataCompetencia between pc.DATA_INICIAL and ISNULL(pc.DATA_FINAL, :dataCompetencia)
+                   left join UNIDADE_REFERENCIA   ur on ur.PLANO_ID         = pla.ID
+                                                    and (ur.PLANO_GRUPO_ID  is null or ur.PLANO_GRUPO_ID = pgc.PLANO_GRUPO_ID)
+                   left join VALORES_UNIDADE_REFERENCIA vur on vur.UNIDADE_REFERENCIA_ID = ur.ID
+                                                    and :dataCompetencia BETWEEN vur.DATA_INICIO and vur.DATA_FIM
+                   left join ROTINA_CALCULO      rce on rce.ID              = pgc.ROTINA_ELEGIBILIDADE_ID
+                   left join ROTINA_CALCULO      rcc on rcc.ID              = pgc.ROTINA_CALCULO_ID
+                   left join ROTINA_CALCULO      rcr on rcr.ID              = pgc.ROTINA_RETORNO_ID
+                   left join CONTRIBUICAO       cref on cref.ID             = con.CONTRIBUICAO_REF_ID
+                   left join PESSOA_CONTRIBUICAO pcr on pcr.CONTRIBUICAO_ID = cref.ID
+                                                    and pp.ID               = pcr.PESSOA_PLANO_ID
+                                                    and :dataCompetencia between pcr.DATA_INICIAL and ISNULL(pcr.DATA_FINAL, :dataCompetencia)
+                   left join (select hsv.VINCULO_ID, max(hsv.SITUACAO_VINCULO_ID ) SITUACAO_VINCULO_ID
+                               from HISTORICO_SITUACAO_VINCULO hsv
+                              where :dataCompetencia between hsv.DATA_INICIO and hsv.DATA_FIM
+                              group by VINCULO_ID) sit_vinc on sit_vinc.VINCULO_ID = vin.ID
+                  where 1=1
+                    and ppj.PESSOA_JURIDICA_ID = :idPessoaJuridica
+                    and (:idPlano is null or con.PLANO_ID = :idPlano)
+                    and :dataCompetencia between con.DATA_INICIAL  and ISNULL(con.DATA_FINAL, :dataCompetencia)
+                    and (coalesce(con.CONTRIB_13, 'N') != 'S' or (con.CONTRIB_13 = 'S' and MONTH(:dataCompetencia) = pla.MES_DECIMO_TERCEIRO))
+                 ) vw
              order by vw.PESSOA_ID, vw.ATRIBUICAO_PAGAMENTO_ID, case when vw.ORDEM is null then 9999 else vw.ORDEM end
-           """, rowMapperClass = DadosParticipanteRowMapper.class)
+        """, rowMapperClass = DadosParticipanteRowMapper.class)
     List<DadosParticipante> listarParticipantes(@Param("idPessoaJuridica") Long idPessoaJuridica,
                                                 @Param("idPlano") Long idPlano,
                                                 @Param("dataCompetencia") LocalDate dataCompetencia);

@@ -105,15 +105,17 @@ public class ArrecadacaoMovimentoWriter implements ItemWriter<PlanoProcessamento
 
         for (var arrecadacao : recebidos) {
 
-            Optional<ArrecadacaoMovimento> optMovimento = getArrecadacaoMovimento(movimentos, arrecadacao);
+            ArrecadacaoMovimento movimento = getArrecadacaoMovimento(movimentos, arrecadacao).orElse(new ArrecadacaoMovimento(arrecadacao));
 
             String key = getKey(arrecadacao);
-            if (mapArrecadacao.containsKey(key)) {
-                ArrecadacaoMovimento movimento = optMovimento.orElse(new ArrecadacaoMovimento(arrecadacao));
-                movimento.setValorRecebido(arrecadacao.getValorRecebido());
-                movimento.setValorFinal(arrecadacao.getValorRecebido());
-                mapArrecadacao.get(key).getMovimentos().add(movimento);
+            if (!mapArrecadacao.containsKey(key)) {
+                mapArrecadacao.put(key, new Arrecadacao(movimento));
             }
+
+            movimento.setValorRecebido(arrecadacao.getValorRecebido());
+            movimento.setValorFinal(arrecadacao.getValorRecebido());
+            mapArrecadacao.get(key).getMovimentos().add(movimento);
+
         }
     }
 

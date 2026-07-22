@@ -20,6 +20,7 @@ public class ArrecadacaoCargaRowMapper implements RowMapper<ArrecadacaoCarga> {
                 .anoReferencia(rs.getString("ANO_REFERENCIA"))
                 .mesReferencia(rs.getString("MES_REFERENCIA"))
                 .valorRecebido(rs.getBigDecimal("VALOR_RECEBIDO"))
+                .idPessoaJuridica(rs.getLong("PJ_ID"))
                 .build();
     }
 

@@ -16,10 +16,9 @@ public interface ArrecadacaoCargaRepository extends CrudRepository<ArrecadacaoCa
             select ac.*
               from ARRECADACAO_CARGA ac
               join PESSOA_PLANO pp on pp.ID = ac.PESSOA_PLANO_ID
-              join VINCULO v on v.PESSOA_ID = pp.PESSOA_ID
-                            and v.PJ_ID = :idPessoaJuridica
              where ac.ANO_REFERENCIA = :anoReferencia
                and ac.MES_REFERENCIA = :mesReferencia
+               and ac.PJ_ID = :idPessoaJuridica
             """, rowMapperClass = ArrecadacaoCargaRowMapper.class)
     List<ArrecadacaoCarga> listar(@Param("idPessoaJuridica") Long idPessoaJuridica,
                                   @Param("mesReferencia") String mesReferencia,
